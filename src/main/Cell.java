@@ -1,6 +1,7 @@
 package main;
 
 import java.util.ArrayList;
+import java.util.Objects;
 
 public class Cell implements Subject{
 	private boolean set;
@@ -42,11 +43,7 @@ public class Cell implements Subject{
 
 	public int getyCoord(){ return this.yCoord; }
 
-
-	@Override
-	public String toString(){
-		return value;
-	}
+	public ArrayList<String> getPossibleValues(){ return this.possibleValues; }
 
 	@Override
 	public void Attach(Observer o) {
@@ -63,5 +60,24 @@ public class Cell implements Subject{
 		for(Observer o : observers){
 			o.Update(this);
 		}
+	}
+
+	@Override
+	public String toString(){
+		return value;
+	}
+
+	@Override
+	public boolean equals(Object o) {
+		if (this == o) return true;
+		if (o == null || getClass() != o.getClass()) return false;
+		Cell cell = (Cell) o;
+		return xCoord == cell.xCoord &&
+				yCoord == cell.yCoord;
+	}
+
+	@Override
+	public int hashCode() {
+		return Objects.hash(xCoord, yCoord);
 	}
 }

@@ -36,11 +36,58 @@ public class Game implements Observer{
 					board[i][j].Attach(this);
 				}
 			}
+
+			initializePossibleValues();
 		}
 		catch (Exception ex){ System.out.println(ex.toString()); }
 		finally {
 			try{ in.close(); }catch (Exception ex){ System.out.println(ex.toString());}
 		}
+	}
+
+	public void initializePossibleValues(){
+		try{
+			// go through every row
+			for(int i = 0; i < getSize(); i++){
+				for(Cell c : getRow(i)){
+					if(c.isSet()){
+						for(Cell c2 : getRow(i)){
+							c2.removePossibleValue(c.toString());
+						}
+					}
+				}
+			}
+
+			// go through every column
+			for(int i = 0; i < getSize(); i++){
+				for(Cell c : getColumn(i)){
+					if(c.isSet()){
+						for(Cell c2 : getColumn(i)){
+							c2.removePossibleValue(c.toString());
+						}
+					}
+				}
+			}
+
+			//go through every block
+			for(int blockX = 0; blockX < size/blockSize; blockX++){
+				for(int blockY = 0; blockY < size/blockSize; blockY++){
+					for(int i = 0; i < blockSize; i++){
+						for(int j = 0; j < blockSize; j++){
+							if(board[(blockX * blockSize) + i][(blockY * blockSize) + j].isSet()){
+								String value = board[(blockX * blockSize) + i][(blockY * blockSize) + j].toString();
+								for(int x = 0; x < blockSize; x++){
+									for(int y = 0; y < blockSize; y++){
+										board[(blockX * blockSize) + x][(blockY * blockSize) + y].removePossibleValue(value);
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		}
+		catch (Exception ex) { System.out.println(ex.toString()); }
 	}
 
 	public void updateRow(Cell cell) throws Exception{
@@ -139,19 +186,11 @@ public class Game implements Observer{
 
 	public static void main(String[] args){
 		try{
-			FileInputStream in = new FileInputStream(new File("puzzle3.txt"));
+			FileInputStream in = new FileInputStream(new File("puzzle7.txt"));
 			Game game = new Game(in);
 			game.printPuzzle();
 
-			System.out.println();
 
-			for(Cell c : game.getRow(1))
-				System.out.print(c);
-
-			System.out.println();
-
-			for(Cell c : game.getColumn(1))
-				System.out.println(c);
 		}
 		catch(Exception ex){
 			System.out.print(ex.toString());
