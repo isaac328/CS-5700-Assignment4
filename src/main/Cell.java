@@ -3,7 +3,7 @@ package main;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Cell implements Subject{
+public class Cell implements Subject, Comparable{
 	private boolean set;
 	private String value;
 	private ArrayList<String> possibleValues;
@@ -35,6 +35,18 @@ public class Cell implements Subject{
 			this.set = true;
 			Notify();
 		}
+	}
+
+	public void setValue(String value){
+		if(!possibleValues.contains(value)){
+			System.out.println("Invalid value");
+			return;
+		}
+
+		this.value = value;
+		set = true;
+		Notify();
+
 	}
 
 	public boolean isSet(){ return this.set; }
@@ -79,5 +91,10 @@ public class Cell implements Subject{
 	@Override
 	public int hashCode() {
 		return Objects.hash(xCoord, yCoord);
+	}
+
+	@Override
+	public int compareTo(Object o) {
+		return this.getPossibleValues().size() - ((Cell)o).getPossibleValues().size();
 	}
 }

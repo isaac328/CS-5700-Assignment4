@@ -2,6 +2,7 @@ package main;
 
 import java.io.*;
 import java.util.Arrays;
+import java.util.Collection;
 import java.util.HashSet;
 
 public class Game implements Observer{
@@ -9,10 +10,12 @@ public class Game implements Observer{
 	private HashSet<String> characters;
 	private int size;
 	private int blockSize;
+	private int unsetValues;
 
 	public Game(InputStream in)
 	{
 		characters = new HashSet<>();
+		unsetValues = 0;
 		try{
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 			size = Integer.parseInt(reader.readLine());
@@ -34,6 +37,8 @@ public class Game implements Observer{
 					board[i][j] = new Cell(boardLine[i], Arrays.copyOf(characters.toArray(),
 							characters.toArray().length, String[].class), i, j);
 					board[i][j].Attach(this);
+					if(!board[i][j].isSet())
+						unsetValues += 1;
 				}
 			}
 
@@ -131,6 +136,10 @@ public class Game implements Observer{
 		return this.size;
 	}
 
+	public int getBlockSize() { return this.blockSize; }
+
+	public Cell[][] getBoard(){ return this.board; }
+
 	public Cell[] getRow(int row) throws Exception{
 		if(row >= size)
 			throw new Exception("Index out of bounds");
@@ -150,6 +159,9 @@ public class Game implements Observer{
 		return board[column];
 	}
 
+	public int getUnsetValues(){ return this.unsetValues; }
+
+
 	public boolean validateCharacters(String[] line){
 		for(String character : line){
 			if(!characters.contains(character) && !character.equals("-")){
@@ -168,10 +180,13 @@ public class Game implements Observer{
 		}
 	}
 
+	public boolean isSolved(){ return unsetValues == 0; }
+
 	@Override
 	public void Update(Object obj){
 		if(obj instanceof Cell){
 			Cell c = (Cell)obj;
+			unsetValues -= 1;
 			try{
 				updateColumn(c);
 				updateRow(c);
