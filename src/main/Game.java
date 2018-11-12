@@ -1,133 +1,76 @@
 package main;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.HashSet;
 
-public class Game implements Observer{
-	private Cell[][] board;
+public class Game{
 	private HashSet<String> characters;
+	private Row[] rows;
+	private Column[] columns;
+	private Block[][] blocks;
 	private int size;
 	private int blockSize;
 	private int unsetValues;
 
-	public Game(InputStream in)
+	public Game(InputStream in) throws Exception
 	{
 		characters = new HashSet<>();
+		String[] stringCharacters;
 		unsetValues = 0;
-		try{
+
 			BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 			size = Integer.parseInt(reader.readLine());
 			blockSize = (int)Math.sqrt(size);
-			board = new Cell[size][size];
 
-			String[] stringCharacters = reader.readLine().split("\\s");
+			rows = new Row[size];
+			columns = new Column[size];
+			blocks = new Block[size/blockSize][size/blockSize];
+
+			//construct a two dimensional cell array first
+			Cell[][] board = new Cell[size][size];
+
+			stringCharacters = reader.readLine().split("\\s");
 			for(String character : stringCharacters){
 				characters.add(character);
 			}
 
+			// read all cells into the board array
 			for(int j = 0; j < size; j++){
 				String[] boardLine = reader.readLine().split("\\s");
-				boolean valid = validateCharacters(boardLine);
-				if(!valid)
-					throw new Exception("Invalid Characters");
+				validateCharacters(boardLine);
 
 				for(int i = 0; i < size; i++){
-					board[i][j] = new Cell(boardLine[i], Arrays.copyOf(characters.toArray(),
-							characters.toArray().length, String[].class), i, j);
-					board[i][j].Attach(this);
-					if(!board[i][j].isSet())
-						unsetValues += 1;
+					board[i][j] = new Cell(boardLine[i], stringCharacters, i, j);
 				}
 			}
 
-			initializePossibleValues();
-		}
-		catch (Exception ex){ System.out.println(ex.toString()); }
-		finally {
-			try{ in.close(); }catch (Exception ex){ System.out.println(ex.toString());}
-		}
-	}
-
-	public void initializePossibleValues(){
-		try{
-			// go through every row
-			for(int i = 0; i < getSize(); i++){
-				for(Cell c : getRow(i)){
-					if(c.isSet()){
-						for(Cell c2 : getRow(i)){
-							c2.removePossibleValue(c.toString());
-						}
-					}
+			for(int i = 0; i < size; i++){
+				Cell[] row = new Cell[size];
+				Cell[] column = new Cell[size];
+				for(int j = 0; j < size; j++){
+					row[j] = board[j][i];
+					column[j] = board[i][j];
 				}
-			}
+				Row r = new Row(row);
+				Column c = new Column(column);
 
-			// go through every column
-			for(int i = 0; i < getSize(); i++){
-				for(Cell c : getColumn(i)){
-					if(c.isSet()){
-						for(Cell c2 : getColumn(i)){
-							c2.removePossibleValue(c.toString());
-						}
-					}
-				}
+				rows[i] = r;
+				columns[i] = c;
 			}
 
 			//go through every block
 			for(int blockX = 0; blockX < size/blockSize; blockX++){
 				for(int blockY = 0; blockY < size/blockSize; blockY++){
+					Cell[][] block = new Cell[blockSize][blockSize];
 					for(int i = 0; i < blockSize; i++){
 						for(int j = 0; j < blockSize; j++){
-							if(board[(blockX * blockSize) + i][(blockY * blockSize) + j].isSet()){
-								String value = board[(blockX * blockSize) + i][(blockY * blockSize) + j].toString();
-								for(int x = 0; x < blockSize; x++){
-									for(int y = 0; y < blockSize; y++){
-										board[(blockX * blockSize) + x][(blockY * blockSize) + y].removePossibleValue(value);
-									}
-								}
-							}
+							block[i][j] = board[(blockX * blockSize) + i][(blockY * blockSize) + j];
 						}
 					}
+					blocks[blockX][blockY] = new Block(block);
 				}
 			}
-		}
-		catch (Exception ex) { System.out.println(ex.toString()); }
-	}
-
-	public void updateRow(Cell cell) throws Exception{
-		int y = cell.getyCoord();
-
-		String value = cell.toString();
-
-		for(Cell c : getRow(y)){
-			c.removePossibleValue(value);
-		}
-	}
-
-	public void updateColumn(Cell cell) throws Exception{
-		int x = cell.getxCoord();
-
-		String value = cell.toString();
-
-		for(Cell c : getColumn(x)){
-			c.removePossibleValue(value);
-		}
-	}
-
-	public void updateBlock(Cell cell){
-		String value = cell.toString();
-
-		int x = cell.getxCoord();
-		int y = cell.getyCoord();
-
-		int blockX = (int)Math.floor(x/blockSize);
-		int blockY = (int)Math.floor(y/blockSize);
-
-		for(int i = 0; i < blockSize; i++){
-			for(int j = 0; j < blockSize; j++){
-				board[blockX * blockSize + i][blockY * blockSize + j].removePossibleValue(value);
-			}
-		}
+		in.close();
 	}
 
 
@@ -137,77 +80,55 @@ public class Game implements Observer{
 
 	public int getBlockSize() { return this.blockSize; }
 
-	public Cell[][] getBoard(){ return this.board; }
-
-	public Cell[] getRow(int row) throws Exception{
+	public Row getRow(int row) throws Exception{
 		if(row >= size)
 			throw new Exception("Index out of bounds");
 
-		Cell[] boardRow = new Cell[size];
-
-		for(int i = 0; i < size; i++){
-			boardRow[i] = board[i][row];
-		}
-		return boardRow;
+		return rows[row];
 	}
 
-	public Cell[] getColumn(int column) throws Exception{
+	public Column getColumn(int column) throws Exception{
 		if(column >= size)
 			throw new Exception("Index out of bounds");
 
-		return board[column];
+		return columns[column];
+	}
+
+	public Block getBlock(int blockX, int blockY) throws Exception{
+		if(blockX > blockSize || blockY > blockSize)
+			throw new Exception("Index out of bounds");
+
+		return blocks[blockX][blockY];
 	}
 
 	public int getUnsetValues(){ return this.unsetValues; }
 
 
-	public boolean validateCharacters(String[] line){
+	public boolean validateCharacters(String[] line) throws Exception{
 		for(String character : line){
 			if(!characters.contains(character) && !character.equals("-")){
-				return false;
+				throw new Exception("Invalid Characters");
 			}
 		}
 		return true;
 	}
 
 	public void printPuzzle(){
-		for(int j = 0; j < board.length; j++){
-			for(int i = 0; i < board.length; i++){
-				System.out.print(board[i][j]);
-			}
-			System.out.println();
+		for(Row r : rows){
+			System.out.println(r.toString());
 		}
 	}
-
-	public boolean isSolved(){ return unsetValues == 0; }
-
-	@Override
-	public void Update(Object obj){
-		if(obj instanceof Cell){
-			Cell c = (Cell)obj;
-			unsetValues -= 1;
-			try{
-				updateColumn(c);
-				updateRow(c);
-				updateBlock(c);
-			}
-			catch (Exception ex){ System.out.println(ex.toString()); }
-
-		}
-	}
-
-
 
 	public static void main(String[] args){
 		try{
-			FileInputStream in = new FileInputStream(new File("puzzle8-0301.txt"));
+			FileInputStream in = new FileInputStream(new File("puzzle3.txt"));
 			Game game = new Game(in);
 			game.printPuzzle();
 
 
 		}
 		catch(Exception ex){
-			System.out.print(ex.toString());
+			ex.printStackTrace();
 		}
 	}
 }

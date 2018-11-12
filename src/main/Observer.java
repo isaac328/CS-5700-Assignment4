@@ -1,5 +1,5 @@
 package main;
 
 public interface Observer {
-	void Update(Object obj);
+	void Update(Object obj) throws Exception;
 }

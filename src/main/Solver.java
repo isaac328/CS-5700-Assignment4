@@ -16,7 +16,7 @@ public class Solver {
 	public void checkNakedPair(){
 		try{
 			for(int row = 0; row < game.getSize(); row++){
-				Cell[] currentRow = game.getRow(row);
+				Cell[] currentRow = game.getRow(row).getCells();
 				for(Cell c : currentRow){
 					if(!c.isSet()){
 						for(Cell c1 : currentRow){
@@ -39,7 +39,7 @@ public class Solver {
 			}
 
 			for(int column = 0; column < game.getSize(); column++){
-				Cell[] currentColumn = game.getColumn(column);
+				Cell[] currentColumn = game.getColumn(column).getCells();
 				for(Cell c : currentColumn){
 					if(!c.isSet()){
 						for(Cell c1 : currentColumn){
@@ -69,7 +69,7 @@ public class Solver {
 			//start with rows
 			for(int row = 0; row < game.getSize(); row++){
 
-				Cell[] currentRow = game.getRow(row);
+				Cell[] currentRow = game.getRow(row).getCells();
 				Arrays.sort(currentRow);
 				currentRow = Arrays.stream(currentRow).filter(x -> !x.isSet()).toArray(Cell[]::new);
 
@@ -103,7 +103,7 @@ public class Solver {
 				//frequency list to keep track of how many times a possibility has occurred
 				HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
 				//get current row
-				Cell[] currentRow = game.getRow(row);
+				Cell[] currentRow = game.getRow(row).getCells();
 
 				//go through the current row
 				for(Cell c : currentRow){
@@ -148,7 +148,7 @@ public class Solver {
 				//frequency list to keep track of how many times a possibility has occurred
 				HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
 				//get current column
-				Cell[] currentColumn = game.getColumn(column);
+				Cell[] currentColumn = game.getColumn(column).getCells();
 
 				//go through the current Column
 				for(Cell c : currentColumn){
@@ -250,9 +250,9 @@ public class Solver {
 	}
 
 	public void guess(){
-		for(int i = 0; i < 1 && !game.isSolved(); i++){
+		for(int i = 0; i < 1; i++){
 			try{
-				Cell[] row = game.getRow(i);
+				Cell[] row = game.getRow(i).getCells();
 				Arrays.sort(row);
 				row = Arrays.stream(row).filter(x -> !x.isSet()).toArray(Cell[]::new);
 

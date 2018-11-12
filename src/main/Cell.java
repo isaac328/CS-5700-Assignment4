@@ -18,8 +18,10 @@ public class Cell implements Subject, Comparable{
 		this.value = value;
 		this.possibleValues = new ArrayList<>(allPossibleValues.length);
 		this.set = true;
+
 		this.xCoord = xCoord;
 		this.yCoord = yCoord;
+
 		if(value.equals("-")){
 			this.set = false;
 			for(String s : allPossibleValues){
@@ -28,7 +30,7 @@ public class Cell implements Subject, Comparable{
 		}
 	}
 
-	public void removePossibleValue(String value){
+	public void removePossibleValue(String value) throws Exception{
 		possibleValues.remove(value);
 		if(possibleValues.size() == 1){
 			this.value = possibleValues.get(0);
@@ -37,7 +39,7 @@ public class Cell implements Subject, Comparable{
 		}
 	}
 
-	public void setValue(String value){
+	public void setValue(String value) throws Exception{
 		if(!possibleValues.contains(value)){
 			System.out.println("Invalid value");
 			return;
@@ -50,10 +52,6 @@ public class Cell implements Subject, Comparable{
 	}
 
 	public boolean isSet(){ return this.set; }
-
-	public int getxCoord(){ return this.xCoord; }
-
-	public int getyCoord(){ return this.yCoord; }
 
 	public ArrayList<String> getPossibleValues(){ return this.possibleValues; }
 
@@ -68,7 +66,7 @@ public class Cell implements Subject, Comparable{
 	}
 
 	@Override
-	public void Notify() {
+	public void Notify() throws Exception {
 		for(Observer o : observers){
 			o.Update(this);
 		}
