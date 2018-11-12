@@ -2,7 +2,6 @@ package main;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.Collection;
 import java.util.HashSet;
 
 public class Game implements Observer{
@@ -201,7 +200,7 @@ public class Game implements Observer{
 
 	public static void main(String[] args){
 		try{
-			FileInputStream in = new FileInputStream(new File("puzzle7.txt"));
+			FileInputStream in = new FileInputStream(new File("puzzle8-0301.txt"));
 			Game game = new Game(in);
 			game.printPuzzle();
 
