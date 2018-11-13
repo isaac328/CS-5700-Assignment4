@@ -1,13 +1,16 @@
 package main;
 
+import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Row implements Observer{
-	Cell[] cells;
-	HashSet<String> usedValues;
+public class Row implements Observer, Subject{
+	private Cell[] cells;
+	private HashSet<String> usedValues;
+	private ArrayList<Observer> observers;
 
 	public Row(Cell[] cells) throws Exception{
 		this.cells = cells;
+		observers = new ArrayList<>();
 		usedValues = new HashSet<>();
 		for(Cell c : cells){
 			c.Attach(this);
@@ -15,8 +18,10 @@ public class Row implements Observer{
 
 		for(Cell c : cells){
 			if(c.isSet()){
+				Notify();
 				usedValues.add(c.toString());
 				for(Cell c2 : cells){
+					if(c2.isSet()) continue;
 					c2.removePossibleValue(c.toString());
 				}
 			}
@@ -36,11 +41,31 @@ public class Row implements Observer{
 				throw new Exception("Invalid Move");
 			}
 			usedValues.add(c.toString());
+			Notify();
 
-			for(Cell otherCells : cells)
+			for(Cell otherCells : cells){
 				otherCells.removePossibleValue(c.toString());
+			}
 		}
 	}
+
+	@Override
+	public void Attach(Observer o) {
+		observers.add(o);
+	}
+
+	@Override
+	public void Detach(Observer o) {
+		observers.remove(o);
+	}
+
+	@Override
+	public void Notify() throws Exception {
+		for(Observer o : observers){
+			o.Update(this);
+		}
+	}
+
 
 	@Override
 	public String toString(){

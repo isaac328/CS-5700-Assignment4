@@ -4,16 +4,11 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.util.Arrays;
 import java.util.HashMap;
+import java.util.Random;
 
 public class Solver {
 
-	Game game;
-
-	public Solver(Game game){
-		this.game = game;
-	}
-
-	public void checkNakedPair(){
+	public static void checkNakedPair(Game game){
 		try{
 			for(int row = 0; row < game.getSize(); row++){
 				Cell[] currentRow = game.getRow(row).getCells();
@@ -64,7 +59,7 @@ public class Solver {
 		catch(Exception ex) { System.out.print(ex.toString());}
 	}
 
-	public void checkNakedTriple(){
+	public static void checkNakedTriple(Game game){
 		try{
 			//start with rows
 			for(int row = 0; row < game.getSize(); row++){
@@ -96,197 +91,254 @@ public class Solver {
 	}
 
 
-	public void checkHiddenSingle(){
-		try{
-			// check rows first
-			for(int row = 0; row < game.getSize(); row++){
-				//frequency list to keep track of how many times a possibility has occurred
-				HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
-				//get current row
-				Cell[] currentRow = game.getRow(row).getCells();
+	public static void checkHiddenSingle(Game game) throws Exception{
 
-				//go through the current row
-				for(Cell c : currentRow){
-					//skip cells that are already set
-					if(!c.isSet()){
-						//set the frequency of each possibility
-						for(String s : c.getPossibleValues()){
-							int count = freq.containsKey(s) ? freq.get(s) : 0;
-							freq.put(s, count + 1);
-						}
-					}
-				}
+		// check rows first
+		for(int row = 0; row < game.getSize(); row++){
+			//frequency list to keep track of how many times a possibility has occurred
+			HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
+			//get current row
+			Cell[] currentRow = game.getRow(row).getCells();
 
-				//go back through the current row
-				for(int i = 0; i < currentRow.length; i++){
-					//get the current cell
-					Cell c = currentRow[i];
-					//skip cells that are already set
-					if(!c.isSet()){
-						//get the cells possible values
-						for(String s : c.getPossibleValues()){
-							//if the possible value has only occurred once in the row, then this cell must be the value
-							if(freq.get(s) == 1){
-								//set it
-								c.setValue(s);
-								//subtract this cells possibilities from the rest of the frequency list since its now set
-								for(String s1 : c.getPossibleValues()){
-									int count = freq.get(s1);
-									freq.put(s1, count - 1);
-								}
-								//start over
-								i = 0;
-								break;
-							}
-						}
+			//go through the current row
+			for(Cell c : currentRow){
+				//skip cells that are already set
+				if(!c.isSet()){
+					//set the frequency of each possibility
+					for(String s : c.getPossibleValues()){
+						int count = freq.containsKey(s) ? freq.get(s) : 0;
+						freq.put(s, count + 1);
 					}
 				}
 			}
 
-			// check columns second
-			for(int column = 0; column < game.getSize(); column++){
-				//frequency list to keep track of how many times a possibility has occurred
-				HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
-				//get current column
-				Cell[] currentColumn = game.getColumn(column).getCells();
-
-				//go through the current Column
-				for(Cell c : currentColumn){
-					//skip cells that are already set
-					if(!c.isSet()){
-						//set the frequency of each possibility
-						for(String s : c.getPossibleValues()){
-							int count = freq.containsKey(s) ? freq.get(s) : 0;
-							freq.put(s, count + 1);
-						}
-					}
-				}
-
-				//go back through the current Column
-				for(int i = 0; i < currentColumn.length; i++){
-					//get the current cell
-					Cell c = currentColumn[i];
-					//skip cells that are already set
-					if(!c.isSet()){
-						//get the cells possible values
-						for(String s : c.getPossibleValues()){
-							//if the possible value has only occurred once in the column, then this cell must be the value
-							if(freq.get(s) == 1){
-								//set it
-								c.setValue(s);
-								//subtract this cells possibilities from the rest of the frequency list since its now set
-								for(String s1 : c.getPossibleValues()){
-									int count = freq.get(s1);
-									freq.put(s1, count - 1);
-								}
-								//start over
-								i = 0;
-								break;
+			//go back through the current row
+			for(int i = 0; i < currentRow.length; i++){
+				//get the current cell
+				Cell c = currentRow[i];
+				//skip cells that are already set
+				if(!c.isSet()){
+					//get the cells possible values
+					for(String s : c.getPossibleValues()){
+						//if the possible value has only occurred once in the row, then this cell must be the value
+						if(freq.get(s) == 1){
+							//set it
+							c.setValue(s);
+							//subtract this cells possibilities from the rest of the frequency list since its now set
+							for(String s1 : c.getPossibleValues()){
+								int count = freq.get(s1);
+								freq.put(s1, count - 1);
 							}
+							//start over
+							i = 0;
+							break;
 						}
 					}
 				}
 			}
+		}
 
-			//go through blocks last
-			//go through every block
-//			int size = game.getSize();
-//			int blockSize = game.getBlockSize();
-//			Cell[][] board = game.getBoard();
+		// check columns second
+		for(int column = 0; column < game.getSize(); column++){
+			//frequency list to keep track of how many times a possibility has occurred
+			HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
+			//get current column
+			Cell[] currentColumn = game.getColumn(column).getCells();
+
+			//go through the current Column
+			for(Cell c : currentColumn){
+				//skip cells that are already set
+				if(!c.isSet()){
+					//set the frequency of each possibility
+					for(String s : c.getPossibleValues()){
+						int count = freq.containsKey(s) ? freq.get(s) : 0;
+						freq.put(s, count + 1);
+					}
+				}
+			}
+
+			//go back through the current Column
+			for(int i = 0; i < currentColumn.length; i++){
+				//get the current cell
+				Cell c = currentColumn[i];
+				//skip cells that are already set
+				if(!c.isSet()){
+					//get the cells possible values
+					for(String s : c.getPossibleValues()){
+						//if the possible value has only occurred once in the column, then this cell must be the value
+						if(freq.get(s) == 1){
+							//set it
+							c.setValue(s);
+							//subtract this cells possibilities from the rest of the frequency list since its now set
+							for(String s1 : c.getPossibleValues()){
+								int count = freq.get(s1);
+								freq.put(s1, count - 1);
+							}
+							//start over
+							i = 0;
+							break;
+						}
+					}
+				}
+			}
+		}
+
+		//go through blocks last
+		//go through every block
+//		int size = game.getSize();
+//		int blockSize = game.getBlockSize();
 //
-//        	//go through every block
-//			for(int blockX = 0; blockX < size/blockSize; blockX++){
-//				for(int blockY = 0; blockY < size/blockSize; blockY++){
-//					//frequency list to keep track of how many times a possibility has occurred
-//					HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
+//		//go through every block
+//		for(int blockX = 0; blockX < size/blockSize; blockX++){
+//			for(int blockY = 0; blockY < size/blockSize; blockY++){
+//				//frequency list to keep track of how many times a possibility has occurred
+//				HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
 //
-//					//go through all the cells in this block
-//					for(int i = 0; i < blockSize; i++){
-//						for(int j = 0; j < blockSize; j++){
-//							// skip the cell if it is already set
-//							if(!board[(blockX * blockSize) + i][(blockY * blockSize) + j].isSet()){
-//								//get the current cell
-//								Cell c = board[(blockX * blockSize) + i][(blockY * blockSize) + j];
-//								//increment the frequency count of every possible value of c
-//								for(String s : c.getPossibleValues()){
-//									int count = freq.containsKey(s) ? freq.get(s) : 0;
-//									freq.put(s, count + 1);
-//								}
+//				Cell[][] block = game.getBlock(blockX, blockY).getCells();
+//				//go through all the cells in this block
+//				for(int i = 0; i < blockSize; i++){
+//					for(int j = 0; j < blockSize; j++){
+//						// skip the cell if it is already set
+//						if(!block[i][j].isSet()){
+//							//get the current cell
+//							Cell c = block[i][j];
+//							//increment the frequency count of every possible value of c
+//							for(String s : c.getPossibleValues()){
+//								int count = freq.containsKey(s) ? freq.get(s) : 0;
+//								freq.put(s, count + 1);
 //							}
 //						}
 //					}
+//				}
 //
-//					//go through every cell in this block again
-//					for(int i = 0; i < blockSize; i++){
-//						for(int j = 0; j < blockSize; j++){
-//							//skip cells that are already set
-//							if(!board[(blockX * blockSize) + i][(blockY * blockSize) + j].isSet()){
-//								//get the current cell
-//								Cell c = board[(blockX * blockSize) + i][(blockY * blockSize) + j];
-//								//go through all possible values for this cell
-//								for(String s : c.getPossibleValues()){
-//									//if the possible value has only occurred once in the block, then this cell must be the value
-//									if(freq.get(s) == 1){
-//										//set it
-//										c.setValue(s);
-//										//subtract this cells possibilities from the rest of the frequency list since its now set
-//										for(String s1 : c.getPossibleValues()){
-//											int count = freq.get(s1);
-//											freq.put(s1, count - 1);
-//										}
-//										//start over
-//										i = 0;
-//										j = 0;
-//										break;
+//				//go through every cell in this block again
+//				for(int i = 0; i < blockSize; i++){
+//					for(int j = 0; j < blockSize; j++){
+//						//skip cells that are already set
+//						if(!block[i][j].isSet()){
+//							//get the current cell
+//							Cell c = block[i][j];
+//							//go through all possible values for this cell
+//							for(String s : c.getPossibleValues()){
+//								//if the possible value has only occurred once in the block, then this cell must be the value
+//								if(freq.get(s) == 1){
+//									//set it
+//									c.setValue(s);
+//									//subtract this cells possibilities from the rest of the frequency list since its now set
+//									for(String s1 : c.getPossibleValues()){
+//										int count = freq.get(s1);
+//										freq.put(s1, count - 1);
 //									}
+//									//start over
+//									i = 0;
+//									j = 0;
+//									break;
 //								}
 //							}
 //						}
 //					}
 //				}
 //			}
-		}
-		catch(Exception ex){ System.out.println(ex.toString()); }
+//		}
 	}
 
-	public void guess(){
-		for(int i = 0; i < 1; i++){
-			try{
-				Cell[] row = game.getRow(i).getCells();
-				Arrays.sort(row);
-				row = Arrays.stream(row).filter(x -> !x.isSet()).toArray(Cell[]::new);
+	public static void guess(Game game) throws Exception{
+		Random rand = new Random();
+		int randomOrientation = rand.nextInt(3);
+		int randomElement = rand.nextInt(game.getSize());
 
-				for(Cell c : row){
-					System.out.println(c.getPossibleValues().toString());
+		Cell[] cells = new Cell[game.getSize()];
+		switch(randomOrientation){
+			case 0:
+				cells = game.getRow(randomElement).getCells();
+				break;
+			case 1:
+				cells = game.getColumn(randomElement).getCells();
+				break;
+			case 3:
+				Cell[][] cell2 = game.getBlock(randomElement % game.getBlockSize(), Math.floorDiv(randomElement,
+						game.getBlockSize())).getCells();
+				for(int i = 0; i < game.getBlockSize(); i++){
+					for(int j = 0; j < game.getBlockSize(); j++){
+						cells[i*game.getBlockSize() + j] = cell2[j][i];
+					}
+				}
+				break;
+		}
+		Arrays.sort(cells);
+		cells = Arrays.stream(cells).filter(x -> !x.isSet()).toArray(Cell[]::new);
+
+		//the lucky winner is the cell with the least number of possible values (thus the highest chance of guessing correctly)
+		Cell luckyWinner = cells[0];
+		luckyWinner.setValue(luckyWinner.getPossibleValues().get(rand.nextInt(luckyWinner.getPossibleValues().size())));
+	}
+
+	public static Game solve(Game game, int counter) throws Exception{
+		if(counter < 0) return null;
+		if(game.isSolved()) return game;
+
+		checkNakedPair(game);
+		if(game.isSolved()) return game;
+
+		checkHiddenSingle(game);
+		if(game.isSolved()) return game;
+
+
+		for(int i = 0; i < game.getSize(); i++){
+			Row r = game.getRow(i);
+			for(int j = 0; j < game.getSize(); j++){
+				Cell c = r.getCells()[j];
+				if(c.isSet()) continue;
+				for(String s : c.getPossibleValues()){
+					try{
+						Game g2 = (Game)game.clone();
+						g2.getRow(i).getCells()[j].setValue(s);
+						Game solution = solve(g2, counter -1);
+						if(solution != null)
+							return solution;
+					}
+					catch (Exception ex){ continue; }
+
 				}
 			}
-			catch(Exception ex) { System.out.print(ex.toString());}
 		}
+
+		return null;
 	}
+
 
 
 
 	public static void main(String[] args){
 		try{
-			Game game = new Game(new FileInputStream(new File("puzzle3.txt")));
-			Solver solver = new Solver(game);
-			System.out.println(game.getUnsetValues());
-			//solver.guess();
-			solver.checkHiddenSingle();
-			System.out.println(game.getUnsetValues());
-//
-			solver.checkNakedPair();
-			System.out.println(game.getUnsetValues());
-//
-			solver.checkHiddenSingle();
-			System.out.println(game.getUnsetValues());
+			Game game = new Game(new FileInputStream(new File("puzzle1.txt")));
+//			Game game2 = (Game) game.clone();
+//			System.out.println(game.getRemainingValues());
+//			//solver.guess();
+//			solver.checkHiddenSingle();
+//			System.out.println(game.getRemainingValues());
 //
 //			solver.checkNakedPair();
-//			System.out.println(game.getUnsetValues());
+//			System.out.println(game.getRemainingValues());
+//
+//			solver.checkHiddenSingle();
+//			System.out.println(game.getRemainingValues());
+//
+////			solver.checkNakedPair();
+////			System.out.println(game.getUnsetValues());
+//
+//			game.printPuzzle();
+//			System.out.println("");
+//			game2.printPuzzle();
+//			System.out.println(game2.getRemainingValues());
 
+			Game solution = Solver.solve(game, 50);
 			game.printPuzzle();
+			System.out.println("");
+			solution.printPuzzle();
+
 		}
-		catch (Exception ex) { System.out.print(ex.toString());}
+		catch (Exception ex) { ex.printStackTrace();}
 	}
 
 }

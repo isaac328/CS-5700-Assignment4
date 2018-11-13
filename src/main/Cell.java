@@ -3,7 +3,7 @@ package main;
 import java.util.ArrayList;
 import java.util.Objects;
 
-public class Cell implements Subject, Comparable{
+public class Cell implements Subject, Comparable, Cloneable{
 	private boolean set;
 	private String value;
 	private ArrayList<String> possibleValues;
@@ -31,6 +31,7 @@ public class Cell implements Subject, Comparable{
 	}
 
 	public void removePossibleValue(String value) throws Exception{
+		if(set) return;
 		possibleValues.remove(value);
 		if(possibleValues.size() == 1){
 			this.value = possibleValues.get(0);
@@ -94,5 +95,18 @@ public class Cell implements Subject, Comparable{
 	@Override
 	public int compareTo(Object o) {
 		return this.getPossibleValues().size() - ((Cell)o).getPossibleValues().size();
+	}
+
+	@Override
+	protected Object clone() throws CloneNotSupportedException{
+		Cell cell = (Cell) super.clone();
+
+		ArrayList<String> possibleValues = new ArrayList<>(this.possibleValues.size());
+		for(String s : this.getPossibleValues())
+			possibleValues.add(s);
+
+		cell.possibleValues = possibleValues;
+		cell.observers = new ArrayList<>();
+		return cell;
 	}
 }
