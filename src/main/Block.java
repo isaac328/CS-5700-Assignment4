@@ -1,17 +1,14 @@
 package main;
 
-import java.util.ArrayList;
 import java.util.HashSet;
 
-public class Block implements Observer, Subject{
+public class Block implements Observer{
 	private Cell[][] cells;
 	private HashSet<String> usedValues;
-	private ArrayList<Observer> observers;
 
 	public Block(Cell[][] cells) throws Exception{
 		this.cells = cells;
 		usedValues = new HashSet<>();
-		observers = new ArrayList<>();
 		for(int i = 0; i < cells.length; i++){
 			for(int j = 0; j < cells.length; j++){
 				cells[i][j].Attach(this);
@@ -21,7 +18,6 @@ public class Block implements Observer, Subject{
 		for(int i = 0; i < cells.length; i++){
 			for(int j = 0; j < cells.length; j++){
 				if(cells[i][j].isSet()){
-					Notify();
 					usedValues.add(cells[i][j].toString());
 					for(int x = 0; x < cells.length; x++){
 						for(int y = 0; y < cells.length; y++){
@@ -46,7 +42,6 @@ public class Block implements Observer, Subject{
 				throw new Exception("Invalid Move");
 			}
 			usedValues.add(c.toString());
-			Notify();
 
 			for(int i = 0; i < cells.length; i++){
 				for(int j = 0; j < cells.length; j++){
@@ -55,21 +50,4 @@ public class Block implements Observer, Subject{
 			}
 		}
 	}
-
-	@Override
-	public void Attach(Observer o) {
-		observers.add(o);
-	}
-
-	@Override
-	public void Detach(Observer o) {
-		observers.remove(o);
-	}
-
-	@Override
-	public void Notify() throws Exception {
-		for(Observer o : observers)
-			o.Update(this);
-	}
-	
 }

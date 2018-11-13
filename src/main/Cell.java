@@ -42,8 +42,7 @@ public class Cell implements Subject, Comparable, Cloneable{
 
 	public void setValue(String value) throws Exception{
 		if(!possibleValues.contains(value)){
-			System.out.println("Invalid value");
-			return;
+			throw new Exception("Invalid Value");
 		}
 
 		this.value = value;

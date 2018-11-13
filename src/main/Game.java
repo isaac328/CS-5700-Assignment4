@@ -1,5 +1,7 @@
 package main;
 
+import com.sun.org.apache.bcel.internal.generic.NEW;
+
 import java.io.*;
 import java.util.HashSet;
 
@@ -40,6 +42,8 @@ public class Game implements Cloneable, Observer{
 
 			for(int i = 0; i < size; i++){
 				board[i][j] = new Cell(boardLine[i], stringCharacters, i, j);
+				board[i][j].Attach(this);
+				if(!board[i][j].toString().equals("-")) remainingValues -= 1;
 			}
 		}
 
@@ -51,9 +55,7 @@ public class Game implements Cloneable, Observer{
 				column[j] = board[i][j];
 			}
 			Row r = new Row(row);
-			r.Attach(this);
 			Column c = new Column(column);
-			c.Attach(this);
 
 			rows[i] = r;
 			columns[i] = c;
@@ -104,9 +106,17 @@ public class Game implements Cloneable, Observer{
 		return blocks[blockX][blockY];
 	}
 
-	public int getRemainingValues(){ return this.remainingValues; }
+	public int getRemainingValues(){
+		int total = 0;
+		for(Row r : rows){
+			for(Cell c : r.getCells()){
+				if(!c.isSet()) total += 1;
+			}
+		}
+		return total;
+	}
 
-	public boolean isSolved(){ return remainingValues == 0; }
+	public boolean isSolved(){ return getRemainingValues() == 0; }
 
 
 	public boolean validateCharacters(String[] line) throws Exception{
@@ -133,8 +143,11 @@ public class Game implements Cloneable, Observer{
 
 			for(int i = 0; i < size; i++){
 				Cell[] col = getColumn(i).getCells();
-				for(int j = 0; j < col.length; j++)
+				for(int j = 0; j < col.length; j++){
 					newBoard[i][j] = (Cell) col[j].clone();
+					newBoard[i][j].Attach(newGame);
+				}
+
 			}
 
 			Row[] newRows = new Row[size];
@@ -149,9 +162,7 @@ public class Game implements Cloneable, Observer{
 					column[j] = newBoard[i][j];
 				}
 				Row r = new Row(row);
-				r.Attach(newGame);
 				Column c = new Column(column);
-				c.Attach(newGame);
 
 				newRows[i] = r;
 				newColumns[i] = c;
@@ -167,7 +178,6 @@ public class Game implements Cloneable, Observer{
 						}
 					}
 					newBlocks[blockX][blockY] = new Block(block);
-					newBlocks[blockX][blockY].Attach(newGame);
 				}
 			}
 
@@ -178,10 +188,8 @@ public class Game implements Cloneable, Observer{
 			return newGame;
 		}
 		catch (Exception ex){
-			ex.printStackTrace();
+			return null;
 		}
-
-		return null;
 	}
 
 	@Override
