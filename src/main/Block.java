@@ -29,8 +29,18 @@ public class Block implements Observer{
 		}
 	}
 
-	public Cell[][] getCells(){
+	public Cell[][] get2DCells(){
 		return this.cells;
+	}
+
+	public Cell[] get1DCells(){
+		Cell[] cells = new Cell[this.cells.length * this.cells.length];
+		for(int i = 0; i < this.cells.length; i++){
+			for(int j = 0; j < this.cells.length; j++){
+				cells[i*this.cells.length + j] = this.cells[j][i];
+			}
+		}
+		return cells;
 	}
 
 	@Override
