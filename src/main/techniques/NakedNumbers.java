@@ -6,41 +6,48 @@ import main.Game;
 import java.util.HashMap;
 
 public abstract class NakedNumbers {
+
 	public final boolean execute(Game game) throws Exception{
-		boolean changed = false;
+		boolean rowChanged = false;
+		boolean columnChanged = false;
+		boolean blockChanged = false;
+
 		for(int row = 0; row < game.getSize(); row++){
 			Cell[] currentRow = game.getRow(row).getCells();
 
 			HashMap<String, Integer> freq = setup(currentRow);
 
-			changed = false;
-			for(Cell c : currentRow){
-				if(!c.isSet()){
-					for(Cell c1 : currentRow){
-						if(c1.equals(c) || c1.isSet())
-							continue;
+			boolean changed = findNumbers(currentRow, freq);
+			rowChanged = (changed) ? true : rowChanged;
 
-						if(c1.getPossibleValues().equals(c.getPossibleValues()) && c1.getPossibleValues().size() == 2){
-							for(Cell c2 : currentRow){
+		}
 
-								if(c2.equals(c) || c2.equals(c1) || c2.isSet()) continue;
+		for(int column = 0; column < game.getSize(); column++){
+			Cell[] currentColumn = game.getColumn(column).getCells();
 
-								for(String value : c.getPossibleValues()){
-									if(c2.getPossibleValues().contains(value)){
-										changed = true;
-										c2.removePossibleValue(value);
-									}
-								}
-							}
-						}
-					}
-				}
+			HashMap<String, Integer> freq = setup(currentColumn);
+
+			boolean changed = findNumbers(currentColumn, freq);
+			columnChanged = (changed) ? true : columnChanged;
+
+		}
+
+		for(int blockX = 0; blockX < game.getBlockSize(); blockX++){
+			for(int blockY = 0; blockY < game.getBlockSize(); blockY++){
+				Cell[] currentBlock = game.getBlock(blockX, blockY).get1DCells();
+
+				HashMap<String, Integer> freq = setup(currentBlock);
+
+				boolean changed = findNumbers(currentBlock, freq);
+
+				blockChanged = (changed) ? true : blockChanged;
 			}
 		}
-		return changed;
+		return (rowChanged || columnChanged || blockChanged);
 	}
 
-	public HashMap<String, Integer> setup(Cell[] cells){
+
+	private HashMap<String, Integer> setup(Cell[] cells){
 		HashMap<String, Integer> freq = new HashMap<>(2*cells.length);
 
 		//go through the current Column

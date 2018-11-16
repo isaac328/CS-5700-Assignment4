@@ -21,7 +21,8 @@ public abstract class HiddenNumbers {
 
 			setCells(currentRow, freq);
 
-			rowChanges = findHidden(currentRow, freq);
+			boolean changed = findHidden(currentRow, freq);
+			rowChanges = (changed) ? true : rowChanges;
 		}
 
 		// check columns second
@@ -33,8 +34,8 @@ public abstract class HiddenNumbers {
 
 			setCells(currentColumn, freq);
 
-			columnChanges = findHidden(currentColumn, freq);
-
+			boolean changed = findHidden(currentColumn, freq);
+			columnChanges = (changed) ? true : columnChanges;
 		}
 
 		//go through blocks last
@@ -52,8 +53,8 @@ public abstract class HiddenNumbers {
 
 				setCells(block, freq);
 
-				blockChanges = findHidden(block, freq);
-			}
+				boolean changed = findHidden(block, freq);
+				blockChanges = (changed) ? true : blockChanges;			}
 		}
 		return (rowChanges || columnChanges || blockChanges);
 	}
