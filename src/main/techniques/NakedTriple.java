@@ -39,10 +39,12 @@ public class NakedTriple extends NakedNumbers {
 
 										//store the old list
 										String oldList = c3.getPossibleValues().toString();
+										int oldCount = (freq.containsKey(oldList)) ? freq.get(oldList) : 1;
+										freq.put(oldList, oldCount - 1);
 
-										//delete the values from all other cells
-										for (String value : c.getPossibleValues()) {
-											if (c3.getPossibleValues().contains(value)) {
+										for(int valueI = 0; valueI < c.getPossibleValues().size(); valueI++){
+											String value = c.getPossibleValues().get(valueI);
+											if(c3.getPossibleValues().contains(value)){
 												changed = true;
 												c3.removePossibleValue(value);
 											}
@@ -50,7 +52,6 @@ public class NakedTriple extends NakedNumbers {
 
 										//remove the old list from the frequency counter
 										String newString = c3.getPossibleValues().toString();
-										freq.put(oldList, freq.get(oldList) - 1);
 
 										//add the new list to the frequency counter
 										int count = freq.containsKey(newString) ? freq.get(newString) : 0;

@@ -1,7 +1,5 @@
 package main;
 
-import com.sun.org.apache.bcel.internal.generic.NEW;
-
 import java.io.*;
 import java.util.HashSet;
 
@@ -195,6 +193,15 @@ public class Game implements Cloneable, Observer{
 	@Override
 	public void Update(Object obj) throws Exception {
 		remainingValues -= 1;
+	}
+
+	@Override
+	public String toString(){
+		StringBuilder s = new StringBuilder();
+		for(Row r : rows){
+			s.append(r.toString() + "\n");
+		}
+		return s.toString();
 	}
 
 	public static void main(String[] args){

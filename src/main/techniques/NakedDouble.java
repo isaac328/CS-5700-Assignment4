@@ -26,8 +26,11 @@ public class NakedDouble extends NakedNumbers {
 
 								//store the old list
 								String oldList = c2.getPossibleValues().toString();
+								int oldCount = (freq.containsKey(oldList)) ? freq.get(oldList) : 1;
+								freq.put(oldList, oldCount - 1);
 
-								for(String value : c.getPossibleValues()){
+								for(int valueI = 0; valueI < c.getPossibleValues().size(); valueI++){
+									String value = c.getPossibleValues().get(valueI);
 									if(c2.getPossibleValues().contains(value)){
 										changed = true;
 										c2.removePossibleValue(value);
@@ -36,7 +39,6 @@ public class NakedDouble extends NakedNumbers {
 
 								//remove the old list from the frequency counter
 								String newString = c2.getPossibleValues().toString();
-								freq.put(oldList, freq.get(oldList) - 1);
 
 								//add the new list to the frequency counter
 								int count = freq.containsKey(newString) ? freq.get(newString) : 0;

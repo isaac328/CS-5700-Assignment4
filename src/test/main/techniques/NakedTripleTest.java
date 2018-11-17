@@ -1,17 +1,15 @@
-package test.main.techniques; 
+package test.main.techniques;
 
 import main.Cell;
-import main.techniques.NakedDouble;
 import main.techniques.NakedNumbers;
 import main.techniques.NakedTriple;
-import org.junit.Test;
-import org.junit.Before; 
 import org.junit.After;
+import org.junit.Before;
+import org.junit.Test;
 
 import java.util.HashMap;
 
 import static org.junit.Assert.assertSame;
-import static org.junit.Assert.assertTrue;
 
 /** 
 * NakedTriple Tester. 
