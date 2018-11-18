@@ -50,7 +50,7 @@ public class Row implements Observer{
 	public String toString(){
 		StringBuilder s = new StringBuilder();
 		for(Cell c : cells)
-			s.append(c.toString());
+			s.append(c.toString() + " ");
 		return s.toString();
 	}
 }

@@ -2,14 +2,18 @@ package main.techniques;
 
 import main.Cell;
 import main.Game;
+import org.apache.commons.lang3.time.StopWatch;
 
 import java.util.HashMap;
 
 public abstract class HiddenNumbers extends Technique {
 
 	private static int counter;
+	private static StopWatch watch = new StopWatch();
 
 	public final boolean execute(Game game) throws Exception{
+		startWatch();
+
 		boolean rowChanges = false;
 		boolean columnChanges = false;
 		boolean blockChanges = false;
@@ -61,9 +65,27 @@ public abstract class HiddenNumbers extends Technique {
 		if(rowChanges || columnChanges || blockChanges){
 			counter += 1;
 		}
+		watch.suspend();
 
 		return (rowChanges || columnChanges || blockChanges);
 	}
+
+	private void startWatch(){
+		try{
+			if(watch.isSuspended())
+				watch.resume();
+			else
+				watch.start();
+		}catch (Exception ex){ ex.printStackTrace(); }
+	}
+
+	public static String getTime(){
+		try{
+			return watch.toString();
+		}catch (Exception ex){ ex.printStackTrace(); }
+		return "Error";
+	}
+
 
 	public static int getCounter(){ return counter; }
 

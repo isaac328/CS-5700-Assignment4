@@ -1,16 +1,19 @@
 package main;
 
 import main.techniques.*;
-import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.io.*;
 import java.util.Arrays;
 import java.util.Random;
 import java.util.Scanner;
 
+import org.apache.commons.lang3.time.StopWatch;
+
+
 public class Solver{
 
 	private static int guess;
+	private static StopWatch guessClock = new StopWatch();
 
 	public static void guess(Game game) throws Exception{
 		Random rand = new Random();
@@ -60,6 +63,7 @@ public class Solver{
 		if(game.isSolved()) return game;
 
 
+		getGuessTime();
 		for(int i = 0; i < game.getSize(); i++){
 			Cell[] cells = game.getRow(i).getCells();
 			Arrays.sort(cells);
@@ -71,6 +75,7 @@ public class Solver{
 						Game g2 = (Game)game.clone();
 						g2.getRow(i).getCells()[j].setValue(s);
 						guess += 1;
+						guessClock.suspend();
 						Game solution = solve(g2, counter-1);
 						if(solution != null)
 							return solution;
@@ -84,6 +89,7 @@ public class Solver{
 	}
 
 	public static void main(String[] args){
+		StopWatch watch;
 		System.out.println("Welcome to the Sudoku Solver!\n");
 		System.out.println("Valid inputs:");
 		System.out.println(String.format("-h  %53s\n<input file name> %80s\n" +
@@ -93,6 +99,7 @@ public class Solver{
 				"Reads a puzzle and writes the answer in the output file", "Exit the program"));
 
 		while(true){
+			watch = new StopWatch();
 			Game game = null;
 			boolean writeToFile = false;
 			String outputFile = null;
@@ -101,6 +108,7 @@ public class Solver{
 
 			boolean validInput = false;
 			while(!validInput){
+				watch = new StopWatch();
 				System.out.print("[Solve] ");
 				String[] input = in.nextLine().split("\\s");
 				System.out.println();
@@ -119,14 +127,18 @@ public class Solver{
 						else if(input[0].equals("exit")) System.exit(1);
 						else{
 							try{
+								watch.start();
 								game = new Game(new FileInputStream(new File(input[0])));
+								watch.suspend();
 								validInput = true;
 							}catch (Exception ex){System.out.println("Invalid Input File");}
 						}
 						break;
 					case 2:
 						try{
+							watch.start();
 							game = new Game(new FileInputStream(new File(input[0])));
+							watch.suspend();
 							outputFile = input[1];
 							writeToFile = true;
 							validInput = true;
@@ -143,7 +155,10 @@ public class Solver{
 				HiddenNumbers.resetCounter();
 				NakedNumbers.resetCounter();
 
+				watch.resume();
 				Game solution = Solver.solve(game, 20);
+				watch.suspend();
+
 				if(writeToFile){
 					try{
 						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
@@ -153,7 +168,7 @@ public class Solver{
 						writer.println();
 						writer.println(String.format("Strategy %20s %20s", "Uses", "Time"));
 						writer.println(String.format("One Possibility %13s %40s", String.valueOf(game.getOnePossibility()),
-								"Time"));
+								Cell.getTime()));
 						writer.println(String.format("Naked Numbers %13s %40s", String.valueOf(NakedNumbers.getCounter()), "Time"));
 						writer.println(String.format("Hidden Numbers %13s %40s", String.valueOf(HiddenNumbers.getCounter()),
 								"Time"));
@@ -166,13 +181,15 @@ public class Solver{
 					System.out.println("Solution:");
 					solution.printPuzzle();
 					System.out.println();
+					System.out.print(String.format("Total Time:  %s\n\n", watch.toString()));
 					System.out.println(String.format("Strategy %20s %20s", "Uses", "Time"));
 					System.out.println(String.format("One Possibility %13s %20s", String.valueOf(game.getOnePossibility()),
-							"Time"));
-					System.out.println(String.format("Naked Numbers %15s %20s", String.valueOf(NakedNumbers.getCounter()), "Time"));
+							Cell.getTime()));
+					System.out.println(String.format("Naked Numbers %15s %20s", String.valueOf(NakedNumbers.getCounter()),
+							NakedNumbers.getTime()));
 					System.out.println(String.format("Hidden Numbers %14s %20s", String.valueOf(HiddenNumbers.getCounter()),
-							"Time"));
-					System.out.println(String.format("Guess %23s %20s", String.valueOf(guess), "Time"));
+							HiddenNumbers.getTime()));
+					System.out.println(String.format("Guess %23s %20s", String.valueOf(guess), Solver.getGuessTime()));
 					System.out.println();
 				}
 			}catch (Exception ex){
@@ -192,5 +209,21 @@ public class Solver{
 				}
 			}
 		}
+	}
+
+	private void startGuessWatch(){
+		try{
+			if(guessClock.isSuspended())
+				guessClock.resume();
+			else
+				guessClock.start();
+		}catch (Exception ex){ ex.printStackTrace(); }
+	}
+
+	public static String getGuessTime(){
+		try{
+			return guessClock.toString();
+		}catch (Exception ex){ ex.printStackTrace(); }
+		return "Error";
 	}
 }

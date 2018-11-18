@@ -22,9 +22,13 @@ public class Game implements Cloneable, Observer{
 		onePossibility = 0;
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		String rawSize = reader.readLine();
-		originalPuzzle.add(rawSize);
-		size = Integer.parseInt(rawSize);
+		String str;
+		while((str = reader.readLine()) != null){
+			originalPuzzle.add(str);
+		}
+		reader.close();
+
+		size = Integer.parseInt(originalPuzzle.get(0));
 		blockSize = (int)Math.sqrt(size);
 
 		rows = new Row[size];
@@ -34,9 +38,7 @@ public class Game implements Cloneable, Observer{
 		//construct a two dimensional cell array first
 		Cell[][] board = new Cell[size][size];
 
-		String stringCharactersRaw = reader.readLine();
-		originalPuzzle.add(stringCharactersRaw);
-		String[] stringCharacters = stringCharactersRaw.split("\\s");
+		String[] stringCharacters = originalPuzzle.get(1).split("\\s");
 
 		for(String character : stringCharacters){
 			characters.add(character);
@@ -44,9 +46,7 @@ public class Game implements Cloneable, Observer{
 
 		// read all cells into the board array
 		for(int j = 0; j < size; j++){
-			String boardLineRaw = reader.readLine();
-			originalPuzzle.add(boardLineRaw);
-			String[] boardLine = boardLineRaw.split("\\s");
+			String[] boardLine = originalPuzzle.get(j+2).split("\\s");
 			validateCharacters(boardLine);
 
 			for(int i = 0; i < size; i++){

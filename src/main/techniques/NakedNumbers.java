@@ -4,12 +4,17 @@ import main.Cell;
 import main.Game;
 
 import java.util.HashMap;
+import org.apache.commons.lang3.time.StopWatch;
+
 
 public abstract class NakedNumbers extends Technique {
 
 	private static int counter;
+	private static StopWatch watch = new StopWatch();
+
 
 	public final boolean execute(Game game) throws Exception{
+		startWatch();
 		boolean rowChanged = false;
 		boolean columnChanged = false;
 		boolean blockChanged = false;
@@ -50,6 +55,8 @@ public abstract class NakedNumbers extends Technique {
 			counter += 1;
 		}
 
+		watch.suspend();
+
 		return (rowChanged || columnChanged || blockChanged);
 	}
 
@@ -67,6 +74,17 @@ public abstract class NakedNumbers extends Technique {
 			}
 		}
 		return freq;
+	}
+
+	private void startWatch(){
+		if(watch.isSuspended())
+			watch.resume();
+		else
+			watch.start();
+	}
+
+	public static String getTime(){
+		return watch.toString();
 	}
 
 	public abstract boolean findNumbers(Cell[] cells, HashMap<String, Integer> freq) throws Exception;

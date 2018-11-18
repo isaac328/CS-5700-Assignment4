@@ -1,5 +1,7 @@
 package main;
 
+import org.apache.commons.lang3.time.StopWatch;
+
 import java.util.ArrayList;
 import java.util.Objects;
 
@@ -12,6 +14,8 @@ public class Cell implements Subject, Comparable, Cloneable{
 	private int yCoord;
 
 	private ArrayList<Observer> observers;
+
+	private static StopWatch watch = new StopWatch();
 
 	public Cell(String value, String[] allPossibleValues, int xCoord, int yCoord){
 		observers = new ArrayList<>(1);
@@ -34,8 +38,10 @@ public class Cell implements Subject, Comparable, Cloneable{
 		if(set) return;
 		possibleValues.remove(value);
 		if(possibleValues.size() == 1){
+			startWatch();
 			this.value = possibleValues.get(0);
 			this.set = true;
+			watch.suspend();
 			Notify();
 		}
 	}
@@ -107,5 +113,16 @@ public class Cell implements Subject, Comparable, Cloneable{
 		cell.possibleValues = possibleValues;
 		cell.observers = new ArrayList<>();
 		return cell;
+	}
+
+	private static void startWatch(){
+		if(watch.isSuspended())
+			watch.resume();
+		else
+			watch.start();
+	}
+
+	public static String getTime(){
+		return watch.toString();
 	}
 }
