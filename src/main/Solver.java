@@ -5,11 +5,12 @@ import org.omg.PortableInterceptor.SYSTEM_EXCEPTION;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Random;
 import java.util.Scanner;
 
 public class Solver{
+
+	private static int guess;
 
 	public static void guess(Game game) throws Exception{
 		Random rand = new Random();
@@ -52,7 +53,7 @@ public class Solver{
 		NakedNumbers nakedDouble = new NakedDouble();
 		NakedNumbers nakedTriple = new NakedTriple();
 
-		while(nakedDouble.execute(game) || nakedTriple.execute(game) || hiddenSingle.execute(game) || hiddenDouble.execute(game)){
+		while( nakedDouble.execute(game) || nakedTriple.execute(game) || hiddenSingle.execute(game) || hiddenDouble.execute(game)){
 			continue;
 		}
 
@@ -69,6 +70,7 @@ public class Solver{
 					try{
 						Game g2 = (Game)game.clone();
 						g2.getRow(i).getCells()[j].setValue(s);
+						guess += 1;
 						Game solution = solve(g2, counter-1);
 						if(solution != null)
 							return solution;
@@ -80,9 +82,6 @@ public class Solver{
 
 		return null;
 	}
-
-
-
 
 	public static void main(String[] args){
 		System.out.println("Welcome to the Sudoku Solver!\n");
@@ -139,18 +138,42 @@ public class Solver{
 			}
 
 			try{
+				//reset variables
+				guess = 0;
+				HiddenNumbers.resetCounter();
+				NakedNumbers.resetCounter();
+
 				Game solution = Solver.solve(game, 20);
 				if(writeToFile){
 					try{
 						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
+						writer.println(game.getOriginalPuzzle());
+						writer.println("Solution:");
 						writer.println(solution.toString());
-						writer.println("");
+						writer.println();
+						writer.println(String.format("Strategy %20s %20s", "Uses", "Time"));
+						writer.println(String.format("One Possibility %13s %40s", String.valueOf(game.getOnePossibility()),
+								"Time"));
+						writer.println(String.format("Naked Numbers %13s %40s", String.valueOf(NakedNumbers.getCounter()), "Time"));
+						writer.println(String.format("Hidden Numbers %13s %40s", String.valueOf(HiddenNumbers.getCounter()),
+								"Time"));
+						writer.println(String.format("Guess %20s %40s", String.valueOf(guess), "Time"));
 						writer.close();
 					}catch (Exception ex2){System.out.println("");}
 				}
 				else{
+					System.out.println(game.getOriginalPuzzle());
+					System.out.println("Solution:");
 					solution.printPuzzle();
-					System.out.println("");
+					System.out.println();
+					System.out.println(String.format("Strategy %20s %20s", "Uses", "Time"));
+					System.out.println(String.format("One Possibility %13s %20s", String.valueOf(game.getOnePossibility()),
+							"Time"));
+					System.out.println(String.format("Naked Numbers %15s %20s", String.valueOf(NakedNumbers.getCounter()), "Time"));
+					System.out.println(String.format("Hidden Numbers %14s %20s", String.valueOf(HiddenNumbers.getCounter()),
+							"Time"));
+					System.out.println(String.format("Guess %23s %20s", String.valueOf(guess), "Time"));
+					System.out.println();
 				}
 			}catch (Exception ex){
 				if(writeToFile){

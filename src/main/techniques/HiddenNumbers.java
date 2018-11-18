@@ -5,7 +5,9 @@ import main.Game;
 
 import java.util.HashMap;
 
-public abstract class HiddenNumbers {
+public abstract class HiddenNumbers extends Technique {
+
+	private static int counter;
 
 	public final boolean execute(Game game) throws Exception{
 		boolean rowChanges = false;
@@ -56,8 +58,16 @@ public abstract class HiddenNumbers {
 				boolean changed = findHidden(block, freq);
 				blockChanges = (changed) ? true : blockChanges;			}
 		}
+		if(rowChanges || columnChanges || blockChanges){
+			counter += 1;
+		}
+
 		return (rowChanges || columnChanges || blockChanges);
 	}
+
+	public static int getCounter(){ return counter; }
+
+	public static void resetCounter(){ counter = 0; }
 
 	public abstract boolean findHidden(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
 	public abstract void setCells(Cell[] cells, HashMap<String, Integer> freq) throws Exception;

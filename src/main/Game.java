@@ -1,6 +1,7 @@
 package main;
 
 import java.io.*;
+import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Game implements Cloneable, Observer{
@@ -10,15 +11,20 @@ public class Game implements Cloneable, Observer{
 	private Block[][] blocks;
 	private int size;
 	private int blockSize;
-	private int remainingValues;
+	private ArrayList<String> originalPuzzle;
+
+	private int onePossibility;
 
 	public Game(InputStream in) throws Exception
 	{
 		characters = new HashSet<>();
+		originalPuzzle = new ArrayList<>();
+		onePossibility = 0;
 
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
-		size = Integer.parseInt(reader.readLine());
-		remainingValues = size*size;
+		String rawSize = reader.readLine();
+		originalPuzzle.add(rawSize);
+		size = Integer.parseInt(rawSize);
 		blockSize = (int)Math.sqrt(size);
 
 		rows = new Row[size];
@@ -28,20 +34,24 @@ public class Game implements Cloneable, Observer{
 		//construct a two dimensional cell array first
 		Cell[][] board = new Cell[size][size];
 
-		String[] stringCharacters = reader.readLine().split("\\s");
+		String stringCharactersRaw = reader.readLine();
+		originalPuzzle.add(stringCharactersRaw);
+		String[] stringCharacters = stringCharactersRaw.split("\\s");
+
 		for(String character : stringCharacters){
 			characters.add(character);
 		}
 
 		// read all cells into the board array
 		for(int j = 0; j < size; j++){
-			String[] boardLine = reader.readLine().split("\\s");
+			String boardLineRaw = reader.readLine();
+			originalPuzzle.add(boardLineRaw);
+			String[] boardLine = boardLineRaw.split("\\s");
 			validateCharacters(boardLine);
 
 			for(int i = 0; i < size; i++){
 				board[i][j] = new Cell(boardLine[i], stringCharacters, i, j);
 				board[i][j].Attach(this);
-				if(!board[i][j].toString().equals("-")) remainingValues -= 1;
 			}
 		}
 
@@ -72,7 +82,6 @@ public class Game implements Cloneable, Observer{
 				blocks[blockX][blockY] = new Block(block);
 			}
 		}
-
 		in.close();
 	}
 
@@ -131,6 +140,15 @@ public class Game implements Cloneable, Observer{
 			System.out.println(r.toString());
 		}
 	}
+
+	public String getOriginalPuzzle(){
+		StringBuilder s = new StringBuilder();
+		for(String s1 : originalPuzzle)
+			s.append(s1 + "\n");
+		return s.toString();
+	}
+
+	public int getOnePossibility(){ return onePossibility; }
 
 	@Override
 	protected Object clone() throws CloneNotSupportedException {
@@ -192,7 +210,11 @@ public class Game implements Cloneable, Observer{
 
 	@Override
 	public void Update(Object obj) throws Exception {
-		remainingValues -= 1;
+		if(obj instanceof Cell){
+			Cell c = (Cell)obj;
+			if(c.getPossibleValues().size() == 1)
+				onePossibility += 1;
+		}
 	}
 
 	@Override
@@ -202,21 +224,5 @@ public class Game implements Cloneable, Observer{
 			s.append(r.toString() + "\n");
 		}
 		return s.toString();
-	}
-
-	public static void main(String[] args){
-		Game game = null;
-		try{
-			FileInputStream in = new FileInputStream(new File("puzzle6.txt"));
-			game = new Game(in);
-			game.printPuzzle();
-
-
-		}
-		catch(Exception ex){
-			ex.printStackTrace();
-			game.printPuzzle();
-
-		}
 	}
 }

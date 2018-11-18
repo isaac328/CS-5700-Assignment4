@@ -5,7 +5,9 @@ import main.Game;
 
 import java.util.HashMap;
 
-public abstract class NakedNumbers {
+public abstract class NakedNumbers extends Technique {
+
+	private static int counter;
 
 	public final boolean execute(Game game) throws Exception{
 		boolean rowChanged = false;
@@ -43,6 +45,11 @@ public abstract class NakedNumbers {
 				blockChanged = (changed) ? true : blockChanged;
 			}
 		}
+
+		if(rowChanged || columnChanged || blockChanged){
+			counter += 1;
+		}
+
 		return (rowChanged || columnChanged || blockChanged);
 	}
 
@@ -63,4 +70,8 @@ public abstract class NakedNumbers {
 	}
 
 	public abstract boolean findNumbers(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
+
+	public static int getCounter(){ return counter; }
+
+	public static void resetCounter(){ counter = 0; }
 }
