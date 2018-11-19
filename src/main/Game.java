@@ -166,7 +166,7 @@ public class Game implements Cloneable, Observer{
 	public int getOnePossibility(){ return onePossibility; }
 
 	@Override
-	protected Object clone() throws CloneNotSupportedException {
+	public Object clone() throws CloneNotSupportedException {
 		Game newGame = (Game) super.clone();
 
 		try{
@@ -219,7 +219,7 @@ public class Game implements Cloneable, Observer{
 			return newGame;
 		}
 		catch (Exception ex){
-			return null;
+			throw new CloneNotSupportedException(ex.getMessage());
 		}
 	}
 

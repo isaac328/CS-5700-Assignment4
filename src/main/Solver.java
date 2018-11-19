@@ -7,7 +7,6 @@ import main.techniques.*;
 
 import java.io.*;
 import java.util.Arrays;
-import java.util.Random;
 import java.util.Scanner;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -17,37 +16,6 @@ public class Solver{
 
 	private static int guess;
 	private static StopWatch guessClock = new StopWatch();
-
-	public static void guess(Game game) throws Exception{
-		Random rand = new Random();
-		int randomOrientation = rand.nextInt(3);
-		int randomElement = rand.nextInt(game.getSize());
-
-		Cell[] cells = new Cell[game.getSize()];
-		switch(randomOrientation){
-			case 0:
-				cells = game.getRow(randomElement).getCells();
-				break;
-			case 1:
-				cells = game.getColumn(randomElement).getCells();
-				break;
-			case 3:
-				Cell[][] cell2 = game.getBlock(randomElement % game.getBlockSize(), Math.floorDiv(randomElement,
-						game.getBlockSize())).get2DCells();
-				for(int i = 0; i < game.getBlockSize(); i++){
-					for(int j = 0; j < game.getBlockSize(); j++){
-						cells[i*game.getBlockSize() + j] = cell2[j][i];
-					}
-				}
-				break;
-		}
-		Arrays.sort(cells);
-		cells = Arrays.stream(cells).filter(x -> !x.isSet()).toArray(Cell[]::new);
-
-		//the lucky winner is the cell with the least number of possible values (thus the highest chance of guessing correctly)
-		Cell luckyWinner = cells[0];
-		luckyWinner.setValue(luckyWinner.getPossibleValues().get(rand.nextInt(luckyWinner.getPossibleValues().size())));
-	}
 
 	public static Game solve(Game game, int counter) throws Exception{
 		if(counter < 0) return game;
@@ -87,7 +55,6 @@ public class Solver{
 				}
 			}
 		}
-
 		return null;
 	}
 
@@ -189,7 +156,7 @@ public class Solver{
 								"Time"));
 						writer.println(String.format("Guess %20s %40s", String.valueOf(guess), "Time"));
 						writer.close();
-					}catch (Exception ex2){System.out.println("");}
+					}catch (Exception ex2){ System.out.println(""); }
 				}
 				else{
 					System.out.println(game.getOriginalPuzzle());

@@ -37,7 +37,7 @@ public class Block implements Observer{
 		Cell[] cells = new Cell[this.cells.length * this.cells.length];
 		for(int i = 0; i < this.cells.length; i++){
 			for(int j = 0; j < this.cells.length; j++){
-				cells[i*this.cells.length + j] = this.cells[j][i];
+				cells[i*this.cells.length + j] = this.cells[i][j];
 			}
 		}
 		return cells;
