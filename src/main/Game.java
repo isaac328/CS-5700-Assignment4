@@ -1,5 +1,9 @@
 package main;
 
+import main.exceptions.BadPuzzleException;
+import main.exceptions.InvalidSizeException;
+import main.exceptions.InvalidSymbolException;
+
 import java.io.*;
 import java.util.ArrayList;
 import java.util.HashSet;
@@ -31,6 +35,14 @@ public class Game implements Cloneable, Observer{
 		size = Integer.parseInt(originalPuzzle.get(0));
 		blockSize = (int)Math.sqrt(size);
 
+		String[] stringCharacters = originalPuzzle.get(1).split("\\s");
+
+		for(String character : stringCharacters){
+			characters.add(character);
+		}
+
+		validatePuzzle();
+
 		rows = new Row[size];
 		columns = new Column[size];
 		blocks = new Block[size/blockSize][size/blockSize];
@@ -38,17 +50,9 @@ public class Game implements Cloneable, Observer{
 		//construct a two dimensional cell array first
 		Cell[][] board = new Cell[size][size];
 
-		String[] stringCharacters = originalPuzzle.get(1).split("\\s");
-
-		for(String character : stringCharacters){
-			characters.add(character);
-		}
-
 		// read all cells into the board array
 		for(int j = 0; j < size; j++){
 			String[] boardLine = originalPuzzle.get(j+2).split("\\s");
-			validateCharacters(boardLine);
-
 			for(int i = 0; i < size; i++){
 				board[i][j] = new Cell(boardLine[i], stringCharacters, i, j);
 				board[i][j].Attach(this);
@@ -125,14 +129,25 @@ public class Game implements Cloneable, Observer{
 
 	public boolean isSolved(){ return getRemainingValues() == 0; }
 
+	private void validatePuzzle() throws Exception{
+		if(originalPuzzle.size() != size + 2)
+			throw new InvalidSizeException("Invalid: Game is not a valid size", getOriginalPuzzle());
 
-	public boolean validateCharacters(String[] line) throws Exception{
-		for(String character : line){
-			if(!characters.contains(character) && !character.equals("-")){
-				throw new Exception("Invalid Characters");
+		if(!(this.size == 4 || this.size == 9 || this.size == 16 || this.size == 25 || this.size == 36))
+			throw new InvalidSizeException("Invalid: Game is not a valid size", getOriginalPuzzle());
+
+		for(int i = 2; i < originalPuzzle.size(); i++){
+			String[] line = originalPuzzle.get(i).split("\\s");
+			if(line.length != size) {
+				System.out.println(size + " " + line.length);
+				throw new BadPuzzleException("Invalid: Bad Puzzle", getOriginalPuzzle());
+			}
+
+			for(String character : line){
+				if(!characters.contains(character) && !character.equals("-"))
+					throw new InvalidSymbolException("Invalid: Invalid Symbol", getOriginalPuzzle());
 			}
 		}
-		return true;
 	}
 
 	public void printPuzzle(){

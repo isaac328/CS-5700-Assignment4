@@ -1,5 +1,8 @@
 package main;
 
+import main.exceptions.BadPuzzleException;
+import main.exceptions.InvalidSizeException;
+import main.exceptions.InvalidSymbolException;
 import main.techniques.*;
 
 import java.io.*;
@@ -63,7 +66,7 @@ public class Solver{
 		if(game.isSolved()) return game;
 
 
-		getGuessTime();
+		startGuessWatch();
 		for(int i = 0; i < game.getSize(); i++){
 			Cell[] cells = game.getRow(i).getCells();
 			Arrays.sort(cells);
@@ -108,44 +111,56 @@ public class Solver{
 
 			boolean validInput = false;
 			while(!validInput){
-				watch = new StopWatch();
-				System.out.print("[Solve] ");
-				String[] input = in.nextLine().split("\\s");
-				System.out.println();
+				try{
+					watch = new StopWatch();
+					System.out.print("[Solve] ");
+					String[] input = in.nextLine().split("\\s");
+					System.out.println();
 
 
-				switch(input.length){
-					case 1:
-						if(input[0].equals("-h")){
-							System.out.println("Valid inputs:");
-							System.out.println(String.format("-h  %53s\n<input file name> %80s\n" +
-											"<input file name> <output file name> %63s\nexit %56s\n",
-									"Help message",
-									"Takes a puzzle and displays the answer in the console",
-									"Reads a puzzle and writes the answer in the output file", "Exit the program"));
-						}
-						else if(input[0].equals("exit")) System.exit(1);
-						else{
-							try{
+					switch(input.length){
+						case 1:
+							if(input[0].equals("-h")){
+								System.out.println("Valid inputs:");
+								System.out.println(String.format("-h  %53s\n<input file name> %80s\n" +
+												"<input file name> <output file name> %63s\nexit %56s\n",
+										"Help message",
+										"Takes a puzzle and displays the answer in the console",
+										"Reads a puzzle and writes the answer in the output file", "Exit the program"));
+							}
+							else if(input[0].equals("exit")) System.exit(1);
+							else{
 								watch.start();
 								game = new Game(new FileInputStream(new File(input[0])));
 								watch.suspend();
 								validInput = true;
-							}catch (Exception ex){System.out.println("Invalid Input File");}
-						}
-						break;
-					case 2:
-						try{
+							}
+							break;
+						case 2:
+							writeToFile = true;
+							outputFile = input[1];
 							watch.start();
 							game = new Game(new FileInputStream(new File(input[0])));
 							watch.suspend();
-							outputFile = input[1];
-							writeToFile = true;
 							validInput = true;
-						}catch (Exception ex){System.out.println("Invalid Input File");}
-						break;
-					default:
-						System.out.println("Invalid command");
+							break;
+						default:
+							System.out.println("Invalid command");
+					}
+				}catch(InvalidSizeException ex){
+					printError("Invalid: Incorrect Board Size", ex.getOriginalPuzzle(), writeToFile, outputFile);
+					validInput = false;
+				}
+				catch(InvalidSymbolException ex){
+					printError("Invalid: Invalid Symbol", ex.getOriginalPuzzle(), writeToFile, outputFile);
+					validInput = false;
+				}
+				catch(BadPuzzleException ex){
+					printError("Invalid: Bad Puzzle", ex.getOriginalPuzzle(), writeToFile, outputFile);
+					validInput = false;
+				}
+				catch(Exception ex){
+					System.out.println("Error");
 				}
 			}
 
@@ -211,7 +226,24 @@ public class Solver{
 		}
 	}
 
-	private void startGuessWatch(){
+	private static void printError(String message, String originalPuzzle, boolean writeToFile, String file){
+		if(writeToFile){
+			try{
+				PrintWriter writer = new PrintWriter(file, "UTF-8");
+				writer.println(originalPuzzle);
+				writer.println();
+				writer.println(message);
+			}catch(Exception ex1) {}
+		}
+		else{
+			System.out.println(originalPuzzle);
+			System.out.println();
+			System.out.println(message);
+		}
+	}
+
+
+	private static void startGuessWatch(){
 		try{
 			if(guessClock.isSuspended())
 				guessClock.resume();
