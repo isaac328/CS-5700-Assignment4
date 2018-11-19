@@ -8,7 +8,7 @@ import java.util.HashMap;
 
 public abstract class HiddenNumbers extends Technique {
 
-	private static int counter;
+	private static int counter = 0;
 	private static StopWatch watch = new StopWatch();
 
 	public final boolean execute(Game game) throws Exception{
@@ -76,7 +76,7 @@ public abstract class HiddenNumbers extends Technique {
 				watch.resume();
 			else
 				watch.start();
-		}catch (Exception ex){ ex.printStackTrace(); }
+		}catch (Exception ex){ System.out.println("Error Starting Watch"); }
 	}
 
 	public static String getTime(){
@@ -89,7 +89,10 @@ public abstract class HiddenNumbers extends Technique {
 
 	public static int getCounter(){ return counter; }
 
-	public static void resetCounter(){ counter = 0; }
+	public static void resetCounter(){
+		counter = 0;
+		watch.reset();
+	}
 
 	public abstract boolean findHidden(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
 	public abstract void setCells(Cell[] cells, HashMap<String, Integer> freq) throws Exception;

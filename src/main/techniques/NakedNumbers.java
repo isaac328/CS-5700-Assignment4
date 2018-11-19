@@ -77,10 +77,12 @@ public abstract class NakedNumbers extends Technique {
 	}
 
 	private void startWatch(){
-		if(watch.isSuspended())
-			watch.resume();
-		else
-			watch.start();
+		try{
+			if(watch.isSuspended())
+				watch.resume();
+			else
+				watch.start();
+		}catch (Exception ex){System.out.println("Error Starting Watch");}
 	}
 
 	public static String getTime(){
@@ -91,5 +93,9 @@ public abstract class NakedNumbers extends Technique {
 
 	public static int getCounter(){ return counter; }
 
-	public static void resetCounter(){ counter = 0; }
+	public static void resetCounter(){
+		counter = 0;
+		watch.reset();
+	}
+
 }

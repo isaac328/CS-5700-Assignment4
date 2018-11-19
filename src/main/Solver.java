@@ -6,7 +6,6 @@ import main.exceptions.InvalidSymbolException;
 import main.techniques.*;
 
 import java.io.*;
-import java.util.Arrays;
 import java.util.Scanner;
 
 import org.apache.commons.lang3.time.StopWatch;
@@ -16,11 +15,13 @@ public class Solver{
 
 	private static int guess;
 	private static StopWatch guessClock = new StopWatch();
+	private static Game solvedGame;
 
-	public static Game solve(Game game, int counter) throws Exception{
-		if(counter < 0) return game;
-
-		if(game.isSolved()) return game;
+	public static boolean solve(Game game) throws Exception{
+		if(game.isSolved()){
+			solvedGame = game;
+			return true;
+		}
 
 		HiddenNumbers hiddenSingle = new HiddenSingle();
 		HiddenNumbers hiddenDouble = new HiddenDouble();
@@ -31,31 +32,44 @@ public class Solver{
 			continue;
 		}
 
-		if(game.isSolved()) return game;
+		if(game.isSolved()){
+			solvedGame = game;
+			return true;
+		}
 
 
-		startGuessWatch();
 		for(int i = 0; i < game.getSize(); i++){
 			Cell[] cells = game.getRow(i).getCells();
-			Arrays.sort(cells);
 			for(int j = 0; j < cells.length; j++){
 				Cell c = cells[j];
 				if(c.isSet()) continue;
 				for(String s : c.getPossibleValues()){
+					startGuessWatch();
 					try{
 						Game g2 = (Game)game.clone();
 						g2.getRow(i).getCells()[j].setValue(s);
 						guess += 1;
-						guessClock.suspend();
-						Game solution = solve(g2, counter-1);
-						if(solution != null)
-							return solution;
+						try{guessClock.suspend();}catch (Exception ex){}
+						boolean solution = solve(g2);
+						if(solution){
+							return true;
+						}
 					}
-					catch (Exception ex){ continue; }
+					catch(CloneNotSupportedException ex1){
+						System.out.println("Cloning Error");
+					}
+					catch (Exception ex){
+						ex.printStackTrace();
+					}
+					finally {
+						if(!guessClock.isSuspended())
+							guessClock.suspend();
+					}
 				}
+				return false;
 			}
 		}
-		return null;
+		return false;
 	}
 
 	public static void main(String[] args){
@@ -138,15 +152,18 @@ public class Solver{
 				NakedNumbers.resetCounter();
 
 				watch.resume();
-				Game solution = Solver.solve(game, 20);
+				boolean solution = Solver.solve(game);
 				watch.suspend();
+
+				if(!solution)
+					throw new Exception("Puzzle Could not be solved");
 
 				if(writeToFile){
 					try{
 						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
 						writer.println(game.getOriginalPuzzle());
 						writer.println("Solution:");
-						writer.println(solution.toString());
+						writer.println(solvedGame.toString());
 						writer.println();
 						writer.println(String.format("Strategy %20s %20s", "Uses", "Time"));
 						writer.println(String.format("One Possibility %13s %40s", String.valueOf(game.getOnePossibility()),
@@ -161,7 +178,7 @@ public class Solver{
 				else{
 					System.out.println(game.getOriginalPuzzle());
 					System.out.println("Solution:");
-					solution.printPuzzle();
+					solvedGame.printPuzzle();
 					System.out.println();
 					System.out.print(String.format("Total Time:  %s\n\n", watch.toString()));
 					System.out.println(String.format("Strategy %20s %20s", "Uses", "Time"));
@@ -179,15 +196,15 @@ public class Solver{
 					try{
 						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
 						writer.println(game.toString());
-						writer.println("Puzzle Could not be solved");
+						writer.println("Invalid: Bad Puzzle");
 						writer.close();
-					}catch (Exception ex2){System.out.println("Puzzle Could" +
-							" not be solved");}
+					}catch (Exception ex2){System.out.println("Invalid: Bad Puzzle");}
 				}
 				else{
+					System.out.println(game.getOriginalPuzzle());
+					System.out.println();
 					game.printPuzzle();
-					System.out.println("Puzzle Could" +
-							" not be solved");
+					System.out.println("Invalid: Bad Puzzle");
 				}
 			}
 		}
@@ -216,13 +233,13 @@ public class Solver{
 				guessClock.resume();
 			else
 				guessClock.start();
-		}catch (Exception ex){ ex.printStackTrace(); }
+		}catch (Exception ex){ System.out.println("Error starting watch"); }
 	}
 
 	public static String getGuessTime(){
 		try{
 			return guessClock.toString();
 		}catch (Exception ex){ ex.printStackTrace(); }
-		return "Error";
+		return "Guess clock error";
 	}
 }
