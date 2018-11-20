@@ -13,6 +13,7 @@ public abstract class NakedNumbers extends Technique {
 	private static StopWatch watch = new StopWatch();
 
 
+	@Override
 	public final boolean execute(Game game) throws Exception{
 		startWatch();
 		boolean rowChanged = false;
@@ -76,7 +77,7 @@ public abstract class NakedNumbers extends Technique {
 		return freq;
 	}
 
-	private void startWatch(){
+	private static void startWatch(){
 		try{
 			if(watch.isSuspended())
 				watch.resume();
@@ -89,13 +90,14 @@ public abstract class NakedNumbers extends Technique {
 		return watch.toString();
 	}
 
-	public abstract boolean findNumbers(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
-
 	public static int getCounter(){ return counter; }
 
 	public static void resetCounter(){
 		counter = 0;
 		watch.reset();
 	}
+
+	public abstract boolean findNumbers(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
+
 
 }

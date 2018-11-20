@@ -20,27 +20,26 @@ public abstract class HiddenNumbers extends Technique {
 
 		// check rows first
 		for(int row = 0; row < game.getSize(); row++){
-			//frequency list to keep track of how many times a possibility has occurred
-			HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
 			//get current row
 			Cell[] currentRow = game.getRow(row).getCells();
 
-			setCells(currentRow, freq);
+			//frequency list to keep track of how many times a possibility has occurred
+			HashMap<String, Integer> freq = setup(currentRow);
 
-			boolean changed = findHidden(currentRow, freq);
+
+			boolean changed = findNumbers(currentRow, freq);
 			rowChanges = (changed) ? true : rowChanges;
 		}
 
 		// check columns second
 		for(int column = 0; column < game.getSize(); column++){
-			//frequency list to keep track of how many times a possibility has occurred
-			HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
 			//get current column
 			Cell[] currentColumn = game.getColumn(column).getCells();
 
-			setCells(currentColumn, freq);
+			//frequency list to keep track of how many times a possibility has occurred
+			HashMap<String, Integer> freq = setup(currentColumn);
 
-			boolean changed = findHidden(currentColumn, freq);
+			boolean changed = findNumbers(currentColumn, freq);
 			columnChanges = (changed) ? true : columnChanges;
 		}
 
@@ -52,14 +51,12 @@ public abstract class HiddenNumbers extends Technique {
 		//go through every block
 		for(int blockX = 0; blockX < size/blockSize; blockX++){
 			for(int blockY = 0; blockY < size/blockSize; blockY++){
-				//frequency list to keep track of how many times a possibility has occurred
-				HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
-
 				Cell[] block = game.getBlock(blockX, blockY).getCells();
 
-				setCells(block, freq);
+				//frequency list to keep track of how many times a possibility has occurred
+				HashMap<String, Integer> freq = setup(block);
 
-				boolean changed = findHidden(block, freq);
+				boolean changed = findNumbers(block, freq);
 				blockChanges = (changed) ? true : blockChanges;			}
 		}
 		if(rowChanges || columnChanges || blockChanges){
@@ -94,7 +91,9 @@ public abstract class HiddenNumbers extends Technique {
 		watch.reset();
 	}
 
-	public void setCells(Cell[] cells, HashMap<String, Integer> freq) {
+	public HashMap<String, Integer> setup(Cell[] cells) {
+		HashMap<String, Integer> freq = new HashMap<>(2*cells.length);
+
 		//go through the current Column
 		for(Cell c : cells){
 			//skip cells that are already set
@@ -106,7 +105,8 @@ public abstract class HiddenNumbers extends Technique {
 				}
 			}
 		}
+		return freq;
 	}
 
-	public abstract boolean findHidden(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
+	public abstract boolean findNumbers(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
 }

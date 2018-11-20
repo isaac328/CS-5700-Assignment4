@@ -68,11 +68,9 @@ public void testFindHidden() throws Exception {
 
 	HiddenNumbers hiddenSingle = new HiddenSingle();
 
-	HashMap<String, Integer> freq = new HashMap<>(2*cells.length);
+	HashMap<String, Integer> freq = hiddenSingle.setup(cells);
 
-	hiddenSingle.setCells(cells, freq);
-
-	hiddenSingle.findHidden(cells, freq);
+	hiddenSingle.findNumbers(cells, freq);
 
 	assertSame(4,c1.getPossibleValues().size());
 	assertSame(4,c2.getPossibleValues().size());

@@ -7,7 +7,7 @@ import java.util.HashMap;
 public class HiddenSingle extends HiddenNumbers {
 
 	@Override
-	public boolean findHidden(Cell[] cells, HashMap<String, Integer> freq) throws Exception{
+	public boolean findNumbers(Cell[] cells, HashMap<String, Integer> freq) throws Exception{
 		boolean changes = false;
 		for(int i = 0; i < cells.length; i++){
 			Cell c = cells[i];

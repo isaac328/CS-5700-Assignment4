@@ -9,8 +9,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Game implements Cloneable, Observer{
-	//possible characters in this game
-	private HashSet<String> characters;
 	//rows of the game
 	private Row[] rows;
 	//columns of the game
@@ -33,7 +31,6 @@ public class Game implements Cloneable, Observer{
 	public Game(InputStream in) throws Exception
 	{
 		//initialize variables
-		characters = new HashSet<>();
 		originalPuzzle = new ArrayList<>();
 		onePossibility = 0;
 
@@ -49,6 +46,8 @@ public class Game implements Cloneable, Observer{
 		//set the size and blocksize variables
 		size = Integer.parseInt(originalPuzzle.get(0));
 
+		HashSet<String> characters = new HashSet<>(size * 2);
+
 		//get the characters
 		String[] stringCharacters = originalPuzzle.get(1).split("\\s");
 		for(String character : stringCharacters){
@@ -56,7 +55,7 @@ public class Game implements Cloneable, Observer{
 		}
 
 		//validate the puzzle
-		validatePuzzle();
+		validatePuzzle(characters);
 
 		//start creating the different houses
 		rows = new Row[size];
@@ -177,7 +176,7 @@ public class Game implements Cloneable, Observer{
 	 */
 	public boolean isSolved(){ return getRemainingValues() == 0; }
 
-	private void validatePuzzle() throws Exception{
+	private void validatePuzzle(HashSet<String> characters) throws Exception{
 		if(originalPuzzle.size() != size + 2)
 			throw new InvalidSizeException("Invalid: Game is not a valid size", getOriginalPuzzle());
 
@@ -263,7 +262,6 @@ public class Game implements Cloneable, Observer{
 			newGame.columns = newColumns;
 			newGame.rows = newRows;
 			newGame.blocks = newBlocks;
-			newGame.characters = (HashSet<String>) characters.clone();
 			return newGame;
 		}
 		catch (Exception ex){

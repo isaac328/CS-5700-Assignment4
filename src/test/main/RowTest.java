@@ -74,18 +74,7 @@ public void testGetCells() throws Exception {
 	assertSame(c7, returnedCells[6]);
 	assertSame(c8, returnedCells[7]);
 	assertSame(c9, returnedCells[8]);
-} 
-
-/** 
-* 
-* Method: Update(Object obj) 
-* 
-*/ 
-@Test
-public void testUpdate() throws Exception { 
-//TODO: Test goes here... 
-} 
-
+}
 /** 
 * 
 * Method: toString() 
