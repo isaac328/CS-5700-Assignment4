@@ -94,6 +94,19 @@ public abstract class HiddenNumbers extends Technique {
 		watch.reset();
 	}
 
+	public void setCells(Cell[] cells, HashMap<String, Integer> freq) {
+		//go through the current Column
+		for(Cell c : cells){
+			//skip cells that are already set
+			if(!c.isSet()){
+				//set the frequency of each possibility
+				for(String s : c.getPossibleValues()){
+					int count = freq.containsKey(s) ? freq.get(s) : 0;
+					freq.put(s, count + 1);
+				}
+			}
+		}
+	}
+
 	public abstract boolean findHidden(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
-	public abstract void setCells(Cell[] cells, HashMap<String, Integer> freq) throws Exception;
 }

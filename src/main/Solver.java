@@ -151,6 +151,7 @@ public class Solver{
 			boolean validInput = false;
 			while(!validInput){
 				try{
+					watch.reset();
 					//get request
 					System.out.print("[Solve] ");
 					String[] input = in.nextLine().split("\\s");
@@ -173,7 +174,7 @@ public class Solver{
 							else if(input[0].equals("exit")) System.exit(1);
 							//file request
 							else{
-								watch.start();
+								try{watch.start();}catch (IllegalStateException ex){}
 								game = new Game(new FileInputStream(new File(input[0])));
 								watch.suspend();
 								validInput = true;
@@ -183,7 +184,7 @@ public class Solver{
 							//if they want to write to a file
 							writeToFile = true;
 							outputFile = input[1];
-							watch.start();
+							try{watch.start();}catch (IllegalStateException ex){}
 							game = new Game(new FileInputStream(new File(input[0])));
 							watch.suspend();
 							validInput = true;
@@ -204,7 +205,12 @@ public class Solver{
 					validInput = false;
 				}
 				catch(Exception ex){
+					ex.printStackTrace();
 					System.out.println("Error Reading Puzzle");
+				}
+				finally {
+					if(watch.isStarted() && !watch.isSuspended())
+						watch.suspend();
 				}
 			}
 
@@ -226,7 +232,6 @@ public class Solver{
 				//solve the puzzle
 				watch.resume();
 				boolean solution = Solver.solve(game);
-				System.out.println(solvedGame == null);
 				watch.suspend();
 
 				//if there was no solution found, throw and error

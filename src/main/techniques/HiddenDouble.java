@@ -66,19 +66,4 @@ public class HiddenDouble extends HiddenNumbers {
 		}
 		return changes;
 	}
-
-	@Override
-	public void setCells(Cell[] cells, HashMap<String, Integer> freq) throws Exception {
-		//go through the current Column
-		for(Cell c : cells){
-			//skip cells that are already set
-			if(!c.isSet()){
-				//set the frequency of each possibility
-				for(String s : c.getPossibleValues()){
-					int count = freq.containsKey(s) ? freq.get(s) : 0;
-					freq.put(s, count + 1);
-				}
-			}
-		}
-	}
 }
