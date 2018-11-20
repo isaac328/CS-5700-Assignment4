@@ -18,6 +18,8 @@ public class Block extends House{
 		for(int i = 0; i < cells.length; i++){
 			for(int j = 0; j < cells.length; j++){
 				if(cells[i][j].isSet()){
+//					if(getUsedValues().contains(cells[i][j].toString()))
+//						throw new Exception("Invalid: Unsolvable");
 					getUsedValues().add(cells[i][j].toString());
 					for(int x = 0; x < cells.length; x++){
 						for(int y = 0; y < cells.length; y++){

@@ -7,12 +7,18 @@ public abstract class House implements Observer {
 	private HashSet<String> usedValues;
 
 
-	protected House(Cell[] cells){
+	protected House(Cell[] cells) throws Exception{
+		if(cells == null)
+			throw new Exception("Cells cannot be null");
+
 		this.cells = cells;
 		usedValues = new HashSet<>(2 * cells.length);
 	}
 
-	protected House(Cell[][] cells){
+	protected House(Cell[][] cells) throws Exception{
+		if(cells == null)
+			throw new Exception("Cells cannot be null");
+
 		this.cells = new Cell[cells.length * cells.length];
 		for(int i = 0; i < cells.length; i++){
 			for(int j = 0; j < cells.length; j++){

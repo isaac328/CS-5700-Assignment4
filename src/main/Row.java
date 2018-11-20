@@ -14,7 +14,7 @@ public class Row extends House{
 		for(Cell c : cells){
 			//if the cell is set, make sure it hasn't occurred before
 			if(c.isSet()){
-//				if(usedValues.contains(c.toString()))
+//				if(getUsedValues().contains(c.toString()))
 //					throw new Exception("Invalid: Unsolvable");
 
 				//add it to the list of used values and remove possibilities from other cells

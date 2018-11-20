@@ -35,7 +35,22 @@ public void before() throws Exception {
 
 @After
 public void after() throws Exception { 
-} 
+}
+
+@Test
+public void testConstructor() throws Exception{
+	FileInputStream in = new FileInputStream(new File("puzzle1.txt"));
+	Game game1 = new Game(in);
+
+	assertEquals(4, game1.getSize());
+	assertEquals(2, game1.getBlockSize());
+
+	try{
+		Game game2 = new Game(null);
+		fail("Expected Exception not Thrown");
+	}
+	catch (Exception ex){ assertEquals("Input cannot be null", ex.getMessage());}
+}
 
 /** 
 * 

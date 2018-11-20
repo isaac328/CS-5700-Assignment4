@@ -24,7 +24,52 @@ public void before() throws Exception {
 
 @After
 public void after() throws Exception { 
-} 
+}
+
+@Test
+public void testConstructor() throws Exception{
+	String[] cellValues = new String[]{"2", "3", "4", "5", "7", "8", "9"};
+	Cell c1 = new Cell("-", cellValues, 0,0);
+
+	cellValues = new String[]{"1","2","3","4","5","7","8"};
+	Cell c2 = new Cell("-", cellValues, 1,0);
+
+	cellValues = new String[]{"1","2","3","8","9"};
+	Cell c3 = new Cell("-", cellValues, 2,0);
+
+	cellValues = new String[]{"1","5","8","9"};
+	Cell c4 = new Cell("-", cellValues, 3,0);
+
+	cellValues = new String[]{"1","2","3","4","5","7","8"};
+	Cell c5 = new Cell("6", cellValues, 4,0);
+
+	cellValues = new String[]{"1","5","8","9"};
+	Cell c6 = new Cell("-", cellValues, 5,0);
+
+	cellValues = new String[]{"1","5","8","9"};
+	Cell c7 = new Cell("-", cellValues, 6,0);
+
+	cellValues = new String[]{"1","5"};
+	Cell c8 = new Cell("-", cellValues, 7,0);
+
+	cellValues = new String[]{"2","9"};
+	Cell c9 = new Cell("-", cellValues, 8,0);
+
+	Cell[][] cells = new Cell[3][3];
+	cells[0] = new Cell[]{c1, c2, c3};
+	cells[1] = new Cell[]{c4, c5, c6};
+	cells[2] = new Cell[]{c7, c8, c9};
+	Block block = new Block(cells);
+
+	assertSame(cells, block.get2DCells());
+
+	try{
+		Block badBlock = new Block(null);
+		fail("Expected Exception Not Thrown");
+	}catch (Exception ex){
+		assertSame("Cells cannot be null", ex.getMessage());
+	}
+}
 
 /** 
 * 

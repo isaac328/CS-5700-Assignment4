@@ -30,6 +30,9 @@ public class Game implements Cloneable, Observer{
 	 */
 	public Game(InputStream in) throws Exception
 	{
+		if(in == null)
+			throw new Exception("Input cannot be null");
+
 		//initialize variables
 		originalPuzzle = new ArrayList<>();
 		onePossibility = 0;

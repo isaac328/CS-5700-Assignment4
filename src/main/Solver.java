@@ -205,7 +205,7 @@ public class Solver{
 					validInput = false;
 				}
 				catch(Exception ex){
-					ex.printStackTrace();
+					//ex.printStackTrace();
 					System.out.println("Error Reading Puzzle");
 				}
 				finally {
@@ -246,13 +246,15 @@ public class Solver{
 						writer.println("Solution:");
 						writer.println(solvedGame.toString());
 						writer.println();
+						writer.print(String.format("Total Time:  %s\n\n", watch.toString()));
 						writer.println(String.format("Strategy %20s %20s", "Uses", "Time"));
 						writer.println(String.format("One Possibility %13s %20s", String.valueOf(game.getOnePossibility()),
 								Cell.getTime()));
-						writer.println(String.format("Naked Numbers %15s %20s", String.valueOf(NakedNumbers.getCounter()), "Time"));
+						writer.println(String.format("Naked Numbers %15s %20s", String.valueOf(NakedNumbers.getCounter()),
+								NakedNumbers.getTime()));
 						writer.println(String.format("Hidden Numbers %14s %20s", String.valueOf(HiddenNumbers.getCounter()),
-								"Time"));
-						writer.println(String.format("Guess %23s %20s", String.valueOf(guess), "Time"));
+								HiddenNumbers.getTime()));
+						writer.println(String.format("Guess %23s %20s", String.valueOf(guess), Solver.getGuessTime()));
 						writer.close();
 					}catch (Exception ex2){ System.out.println(""); }
 				}
@@ -297,6 +299,7 @@ public class Solver{
 					try{
 						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
 						writer.println(game.getOriginalPuzzle());
+						writer.println();
 						writer.println("Invalid: Bad Puzzle");
 						writer.close();
 					}catch (Exception ex2){System.out.println("Invalid: Bad Puzzle");}
@@ -324,6 +327,7 @@ public class Solver{
 				writer.println(originalPuzzle);
 				writer.println();
 				writer.println(message);
+				writer.close();
 			}catch(Exception ex1) {}
 		}
 		else{

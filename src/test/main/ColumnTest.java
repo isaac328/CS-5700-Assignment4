@@ -8,6 +8,7 @@ import org.junit.Before;
 import org.junit.After;
 
 import static org.junit.Assert.assertSame;
+import static org.junit.Assert.fail;
 
 /** 
 * Column Tester. 
@@ -24,15 +25,10 @@ public void before() throws Exception {
 
 @After
 public void after() throws Exception { 
-} 
+}
 
-/** 
-* 
-* Method: getCells() 
-* 
-*/ 
 @Test
-public void testGetCells() throws Exception {
+public void testConstructor() throws Exception{
 	String[] cellValues = new String[]{"2", "3", "4", "5", "7", "8", "9"};
 	Cell c1 = new Cell("-", cellValues, 0,0);
 
@@ -64,18 +60,15 @@ public void testGetCells() throws Exception {
 
 	Column col = new Column(cells);
 
-	Cell[] returnedCells = col.getCells();
-	assertSame(c1, returnedCells[0]);
-	assertSame(c2, returnedCells[1]);
-	assertSame(c3, returnedCells[2]);
-	assertSame(c4, returnedCells[3]);
-	assertSame(c5, returnedCells[4]);
-	assertSame(c6, returnedCells[5]);
-	assertSame(c7, returnedCells[6]);
-	assertSame(c8, returnedCells[7]);
-	assertSame(c9, returnedCells[8]);
-}
+	assertSame(cells, col.getCells());
 
+	try{
+		Column badCol = new Column(null);
+		fail("Expected Exception Not Thrown");
+	}catch (Exception ex){
+		assertSame("Cells cannot be null", ex.getMessage());
+	}
+}
 
 
 } 
