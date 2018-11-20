@@ -44,19 +44,15 @@ public class Block implements Observer{
 	}
 
 	@Override
-	public void Update(Object obj) throws Exception {
-		if(obj instanceof Cell){
-			Cell c = (Cell)obj;
+	public void Update(Cell c) throws Exception {
+		if(usedValues.contains(c.toString())){
+			throw new Exception("Invalid Move");
+		}
+		usedValues.add(c.toString());
 
-			if(usedValues.contains(c.toString())){
-				throw new Exception("Invalid Move");
-			}
-			usedValues.add(c.toString());
-
-			for(int i = 0; i < cells.length; i++){
-				for(int j = 0; j < cells.length; j++){
-					cells[i][j].removePossibleValue(c.toString());
-				}
+		for(int i = 0; i < cells.length; i++){
+			for(int j = 0; j < cells.length; j++){
+				cells[i][j].removePossibleValue(c.toString());
 			}
 		}
 	}

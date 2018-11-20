@@ -3,6 +3,7 @@ package main;
 import main.exceptions.BadPuzzleException;
 import main.exceptions.InvalidSizeException;
 import main.exceptions.InvalidSymbolException;
+import main.exceptions.MultipleSolutionException;
 import main.techniques.*;
 
 import java.io.*;
@@ -12,68 +13,117 @@ import org.apache.commons.lang3.time.StopWatch;
 
 
 public class Solver{
-
+	//number of guesses taken
 	private static int guess;
+	//clock for keeping track of guessing time
 	private static StopWatch guessClock = new StopWatch();
-	private static Game solvedGame;
+	//solved game
+	private static Game solvedGame = null;
+	//extra game if there are multiple solutions
+	private static Game extraGame = null;
 
+	/**
+	 * Recursive solving algorithm
+ 	 * @param game the current game
+	 * @return if the game has been solved
+	 * @throws Exception
+	 */
 	public static boolean solve(Game game) throws Exception{
+		//if the game is solved
 		if(game.isSolved()){
-			solvedGame = game;
+			//if a solved game has not been found this is the solution
+			if(solvedGame == null)
+				solvedGame = game;
+			//if a solved game has already been found, we have multiple solutions
+			else{
+				extraGame = game;
+				throw new MultipleSolutionException("Invalid: Multiple Solutions", game.getOriginalPuzzle());
+			}
 			return true;
 		}
 
+		//Algorithms for narrowing down cells
 		HiddenNumbers hiddenSingle = new HiddenSingle();
 		HiddenNumbers hiddenDouble = new HiddenDouble();
 		NakedNumbers nakedDouble = new NakedDouble();
 		NakedNumbers nakedTriple = new NakedTriple();
 
+		//Continue to execute the algorithms while they find solutions
 		while( nakedDouble.execute(game) || nakedTriple.execute(game) || hiddenSingle.execute(game) || hiddenDouble.execute(game)){
 			continue;
 		}
 
+		//if the game has been solved, do the same as above
 		if(game.isSolved()){
-			solvedGame = game;
+			if(solvedGame == null)
+				solvedGame = game;
+			else{
+				extraGame = game;
+				throw new MultipleSolutionException("Invalid: Multiple Solutions", game.getOriginalPuzzle());
+			}
 			return true;
 		}
 
 
+		//If the other algorithms have not found a solution, its time to start guessing
+		//go through every row
 		for(int i = 0; i < game.getSize(); i++){
 			Cell[] cells = game.getRow(i).getCells();
+			//go through every cell
 			for(int j = 0; j < cells.length; j++){
 				Cell c = cells[j];
 				if(c.isSet()) continue;
+				//keeps track of whether a solution has been found
+				boolean previouslySolved = false;
+				//go through every possible value for this cell
 				for(String s : c.getPossibleValues()){
+					//start the guess watch
 					startGuessWatch();
 					try{
+						//clone the game and add a guess to the counter
 						Game g2 = (Game)game.clone();
-						g2.getRow(i).getCells()[j].setValue(s);
 						guess += 1;
+						//set the guess
+						g2.getRow(i).getCells()[j].setValue(s);
+						//stop the guess clock
 						try{guessClock.suspend();}catch (Exception ex){}
+
+						//try to solve this new puzzle
 						boolean solution = solve(g2);
-						if(solution){
-							return true;
-						}
+
+						//if a solution has been found to this puzzle, set the flag
+						//keep going so we can check for multiple solutions
+						if(solution)
+							previouslySolved = true;
 					}
 					catch(CloneNotSupportedException ex1){
 						System.out.println("Cloning Error");
 					}
+					catch(MultipleSolutionException ex2){
+						throw new MultipleSolutionException(ex2.getMessage(), ex2.getOriginalPuzzle());
+					}
 					catch (Exception ex){
-						ex.printStackTrace();
 					}
 					finally {
 						if(!guessClock.isSuspended())
 							guessClock.suspend();
 					}
 				}
-				return false;
+				return previouslySolved;
 			}
 		}
+		//if we guess every possible value and there's still not a solution then there must be no solution
 		return false;
 	}
 
+	/**
+	 * Main method for the program
+	 * @param args
+	 */
 	public static void main(String[] args){
-		StopWatch watch;
+		//set stopwatch
+		StopWatch watch = new StopWatch();
+		//opening prompt and info
 		System.out.println("Welcome to the Sudoku Solver!\n");
 		System.out.println("Valid inputs:");
 		System.out.println(String.format("-h  %53s\n<input file name> %80s\n" +
@@ -82,25 +132,35 @@ public class Solver{
 				"Takes a puzzle and displays the answer in the console",
 				"Reads a puzzle and writes the answer in the output file", "Exit the program"));
 
+		// start the main loop of the program
 		while(true){
-			watch = new StopWatch();
+			//reset the watch for the program
+			watch.reset();
+			//initial variables
 			Game game = null;
 			boolean writeToFile = false;
 			String outputFile = null;
 
 			Scanner in = new Scanner(System.in);
-
+			/***************************************
+			 *
+			 * Read in and Create the puzzle
+			 *
+			 ***************************************/
+			//keep looping until we get valid input
 			boolean validInput = false;
 			while(!validInput){
 				try{
-					watch = new StopWatch();
+					//get request
 					System.out.print("[Solve] ");
 					String[] input = in.nextLine().split("\\s");
 					System.out.println();
 
-
+					//switch for request length
 					switch(input.length){
+						//one item means solve in console
 						case 1:
+							//help
 							if(input[0].equals("-h")){
 								System.out.println("Valid inputs:");
 								System.out.println(String.format("-h  %53s\n<input file name> %80s\n" +
@@ -109,7 +169,9 @@ public class Solver{
 										"Takes a puzzle and displays the answer in the console",
 										"Reads a puzzle and writes the answer in the output file", "Exit the program"));
 							}
+							//exit
 							else if(input[0].equals("exit")) System.exit(1);
+							//file request
 							else{
 								watch.start();
 								game = new Game(new FileInputStream(new File(input[0])));
@@ -118,6 +180,7 @@ public class Solver{
 							}
 							break;
 						case 2:
+							//if they want to write to a file
 							writeToFile = true;
 							outputFile = input[1];
 							watch.start();
@@ -129,35 +192,48 @@ public class Solver{
 							System.out.println("Invalid command");
 					}
 				}catch(InvalidSizeException ex){
-					printError("Invalid: Incorrect Board Size", ex.getOriginalPuzzle(), writeToFile, outputFile);
+					printError(ex.getMessage(), ex.getOriginalPuzzle(), writeToFile, outputFile);
 					validInput = false;
 				}
 				catch(InvalidSymbolException ex){
-					printError("Invalid: Invalid Symbol", ex.getOriginalPuzzle(), writeToFile, outputFile);
+					printError(ex.getMessage(), ex.getOriginalPuzzle(), writeToFile, outputFile);
 					validInput = false;
 				}
 				catch(BadPuzzleException ex){
-					printError("Invalid: Bad Puzzle", ex.getOriginalPuzzle(), writeToFile, outputFile);
+					printError(ex.getMessage(), ex.getOriginalPuzzle(), writeToFile, outputFile);
 					validInput = false;
 				}
 				catch(Exception ex){
-					System.out.println("Error");
+					System.out.println("Error Reading Puzzle");
 				}
 			}
 
+
+			/***********************************
+			 *
+			 * Start solving the puzzle
+			 *
+			 ***********************************/
 			try{
 				//reset variables
 				guess = 0;
+				solvedGame = null;
+				extraGame = null;
+				guessClock.reset();
 				HiddenNumbers.resetCounter();
 				NakedNumbers.resetCounter();
 
+				//solve the puzzle
 				watch.resume();
 				boolean solution = Solver.solve(game);
+				System.out.println(solvedGame == null);
 				watch.suspend();
 
+				//if there was no solution found, throw and error
 				if(!solution)
 					throw new Exception("Puzzle Could not be solved");
 
+				//if they want to write to a file
 				if(writeToFile){
 					try{
 						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
@@ -166,15 +242,16 @@ public class Solver{
 						writer.println(solvedGame.toString());
 						writer.println();
 						writer.println(String.format("Strategy %20s %20s", "Uses", "Time"));
-						writer.println(String.format("One Possibility %13s %40s", String.valueOf(game.getOnePossibility()),
+						writer.println(String.format("One Possibility %13s %20s", String.valueOf(game.getOnePossibility()),
 								Cell.getTime()));
-						writer.println(String.format("Naked Numbers %13s %40s", String.valueOf(NakedNumbers.getCounter()), "Time"));
-						writer.println(String.format("Hidden Numbers %13s %40s", String.valueOf(HiddenNumbers.getCounter()),
+						writer.println(String.format("Naked Numbers %15s %20s", String.valueOf(NakedNumbers.getCounter()), "Time"));
+						writer.println(String.format("Hidden Numbers %14s %20s", String.valueOf(HiddenNumbers.getCounter()),
 								"Time"));
-						writer.println(String.format("Guess %20s %40s", String.valueOf(guess), "Time"));
+						writer.println(String.format("Guess %23s %20s", String.valueOf(guess), "Time"));
 						writer.close();
 					}catch (Exception ex2){ System.out.println(""); }
 				}
+				//else print to console
 				else{
 					System.out.println(game.getOriginalPuzzle());
 					System.out.println("Solution:");
@@ -191,11 +268,30 @@ public class Solver{
 					System.out.println(String.format("Guess %23s %20s", String.valueOf(guess), Solver.getGuessTime()));
 					System.out.println();
 				}
-			}catch (Exception ex){
+			}
+			//catch for multiple solutions
+			catch(MultipleSolutionException ex1){
 				if(writeToFile){
 					try{
 						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
-						writer.println(game.toString());
+						writer.println(game.getOriginalPuzzle() + "\n\n" + ex1.getMessage());
+						writer.println(solvedGame.toString());
+						writer.println(extraGame.toString());
+						writer.close();
+					}catch (Exception ex2){System.out.println("Print Writer Error");}
+				}
+				else{
+					System.out.println(game.getOriginalPuzzle() + "\n\n" + ex1.getMessage());
+					System.out.println(solvedGame.toString());
+					System.out.println(extraGame.toString());
+				}
+			}
+			//catch for any other exception
+			catch (Exception ex){
+				if(writeToFile){
+					try{
+						PrintWriter writer = new PrintWriter(outputFile, "UTF-8");
+						writer.println(game.getOriginalPuzzle());
 						writer.println("Invalid: Bad Puzzle");
 						writer.close();
 					}catch (Exception ex2){System.out.println("Invalid: Bad Puzzle");}
@@ -203,13 +299,19 @@ public class Solver{
 				else{
 					System.out.println(game.getOriginalPuzzle());
 					System.out.println();
-					game.printPuzzle();
 					System.out.println("Invalid: Bad Puzzle");
 				}
 			}
 		}
 	}
 
+	/**
+	 * Prints error messages
+	 * @param message error message
+	 * @param originalPuzzle the original puzzle
+	 * @param writeToFile if this should be written to a file
+	 * @param file the file to write to
+	 */
 	private static void printError(String message, String originalPuzzle, boolean writeToFile, String file){
 		if(writeToFile){
 			try{
@@ -232,8 +334,9 @@ public class Solver{
 			if(guessClock.isSuspended())
 				guessClock.resume();
 			else
-				guessClock.start();
-		}catch (Exception ex){ System.out.println("Error starting watch"); }
+				if(!guessClock.isStarted())
+					guessClock.start();
+		}catch (Exception ex){ }
 	}
 
 	public static String getGuessTime(){

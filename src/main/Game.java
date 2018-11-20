@@ -9,43 +9,59 @@ import java.util.ArrayList;
 import java.util.HashSet;
 
 public class Game implements Cloneable, Observer{
+	//possible characters in this game
 	private HashSet<String> characters;
+	//rows of the game
 	private Row[] rows;
+	//columns of the game
 	private Column[] columns;
+	//blocks of the game
 	private Block[][] blocks;
+	//size of the game
 	private int size;
-	private int blockSize;
+	//the original, unmodified puzzle
 	private ArrayList<String> originalPuzzle;
 
+	//counter for the number of times one possibility was applied
 	private int onePossibility;
 
+	/**
+	 * Constructor for a game
+	 * @param in input stream to the game
+	 * @throws Exception
+	 */
 	public Game(InputStream in) throws Exception
 	{
+		//initialize variables
 		characters = new HashSet<>();
 		originalPuzzle = new ArrayList<>();
 		onePossibility = 0;
 
+		//read in the game
 		BufferedReader reader = new BufferedReader(new InputStreamReader(in));
 		String str;
 		while((str = reader.readLine()) != null){
 			originalPuzzle.add(str);
 		}
+		in.close();
 		reader.close();
 
+		//set the size and blocksize variables
 		size = Integer.parseInt(originalPuzzle.get(0));
-		blockSize = (int)Math.sqrt(size);
 
+		//get the characters
 		String[] stringCharacters = originalPuzzle.get(1).split("\\s");
-
 		for(String character : stringCharacters){
 			characters.add(character);
 		}
 
+		//validate the puzzle
 		validatePuzzle();
 
+		//start creating the different houses
 		rows = new Row[size];
 		columns = new Column[size];
-		blocks = new Block[size/blockSize][size/blockSize];
+		blocks = new Block[size/getBlockSize()][size/getBlockSize()];
 
 		//construct a two dimensional cell array first
 		Cell[][] board = new Cell[size][size];
@@ -59,6 +75,7 @@ public class Game implements Cloneable, Observer{
 			}
 		}
 
+		//create the individual rows and columns
 		for(int i = 0; i < size; i++){
 			Cell[] row = new Cell[size];
 			Cell[] column = new Cell[size];
@@ -73,29 +90,41 @@ public class Game implements Cloneable, Observer{
 			columns[i] = c;
 		}
 
-		//go through every block
-		for(int blockX = 0; blockX < size/blockSize; blockX++){
-			for(int blockY = 0; blockY < size/blockSize; blockY++){
-				Cell[][] block = new Cell[blockSize][blockSize];
-				for(int i = 0; i < blockSize; i++){
-					for(int j = 0; j < blockSize; j++){
-						block[i][j] = board[(blockX * blockSize) + i][(blockY * blockSize) + j];
+		//create the blocks
+		for(int blockX = 0; blockX < size/getBlockSize(); blockX++){
+			for(int blockY = 0; blockY < size/getBlockSize(); blockY++){
+				Cell[][] block = new Cell[getBlockSize()][getBlockSize()];
+				for(int i = 0; i < getBlockSize(); i++){
+					for(int j = 0; j < getBlockSize(); j++){
+						block[i][j] = board[(blockX * getBlockSize()) + i][(blockY * getBlockSize()) + j];
 						block[i][j].Attach(this);
 					}
 				}
 				blocks[blockX][blockY] = new Block(block);
 			}
 		}
-		in.close();
 	}
 
-
+	/**
+	 * Getter for size of the game
+	 * @return the size
+	 */
 	public int getSize(){
 		return this.size;
 	}
 
-	public int getBlockSize() { return this.blockSize; }
+	/**
+	 * Getter for blockSize of the game
+	 * @return the blocksize
+	 */
+	public int getBlockSize() { return (int)Math.sqrt(this.size); }
 
+	/**
+	 * Get a certain row
+	 * @param row the row to get (0 indexed)
+	 * @return the row
+	 * @throws Exception
+	 */
 	public Row getRow(int row) throws Exception{
 		if(row >= size)
 			throw new Exception("Index out of bounds");
@@ -103,6 +132,12 @@ public class Game implements Cloneable, Observer{
 		return rows[row];
 	}
 
+	/**
+	 * Get a certain column
+	 * @param column the column to get (0 indexed)
+	 * @return the column
+	 * @throws Exception
+	 */
 	public Column getColumn(int column) throws Exception{
 		if(column >= size)
 			throw new Exception("Index out of bounds");
@@ -110,23 +145,36 @@ public class Game implements Cloneable, Observer{
 		return columns[column];
 	}
 
+	/**
+	 * Get a certain block
+	 * @param blockX the desired block's x index (0 indexed)
+	 * @param blockY the desired block's y index (0 indexed)
+	 * @return the desired block
+	 * @throws Exception
+	 */
 	public Block getBlock(int blockX, int blockY) throws Exception{
-		if(blockX > blockSize || blockY > blockSize)
+		if(blockX > getBlockSize() || blockY > getBlockSize())
 			throw new Exception("Index out of bounds");
 
 		return blocks[blockX][blockY];
 	}
 
+	/**
+	 * Get the remaining number of unset values in the game
+	 * @return
+	 */
 	public int getRemainingValues(){
 		int total = 0;
 		for(Row r : rows){
-			for(Cell c : r.getCells()){
-				if(!c.isSet()) total += 1;
-			}
+			total += (size - r.getUsedValues());
 		}
 		return total;
 	}
 
+	/**
+	 * get if the puzzle is solved
+	 * @return
+	 */
 	public boolean isSolved(){ return getRemainingValues() == 0; }
 
 	private void validatePuzzle() throws Exception{
@@ -200,12 +248,12 @@ public class Game implements Cloneable, Observer{
 			}
 
 			//go through every block
-			for(int blockX = 0; blockX < size/blockSize; blockX++){
-				for(int blockY = 0; blockY < size/blockSize; blockY++){
-					Cell[][] block = new Cell[blockSize][blockSize];
-					for(int i = 0; i < blockSize; i++){
-						for(int j = 0; j < blockSize; j++){
-							block[i][j] = newBoard[(blockX * blockSize) + i][(blockY * blockSize) + j];
+			for(int blockX = 0; blockX < size/getBlockSize(); blockX++){
+				for(int blockY = 0; blockY < size/getBlockSize(); blockY++){
+					Cell[][] block = new Cell[getBlockSize()][getBlockSize()];
+					for(int i = 0; i < getBlockSize(); i++){
+						for(int j = 0; j < getBlockSize(); j++){
+							block[i][j] = newBoard[(blockX * getBlockSize()) + i][(blockY * getBlockSize()) + j];
 						}
 					}
 					newBlocks[blockX][blockY] = new Block(block);
@@ -224,12 +272,9 @@ public class Game implements Cloneable, Observer{
 	}
 
 	@Override
-	public void Update(Object obj) throws Exception {
-		if(obj instanceof Cell){
-			Cell c = (Cell)obj;
-			if(c.getPossibleValues().size() == 1)
-				onePossibility += 1;
-		}
+	public void Update(Cell c) throws Exception {
+		if(c.getPossibleValues().size() == 1)
+			onePossibility += 1;
 	}
 
 	@Override
