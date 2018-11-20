@@ -2,74 +2,30 @@ package main;
 
 import java.util.HashSet;
 
-public class Row implements Observer{
-	//cells in this row
-	private Cell[] cells;
-	//all values that have been used in this row
-	private HashSet<String> usedValues;
+public class Row extends House{
 
 	public Row(Cell[] cells) throws Exception{
-		this.cells = cells;
-		usedValues = new HashSet<>();
-		//attach this row to all the cells
+		super(cells);
+		//attach this column to every cell
 		for(Cell c : cells){
 			c.Attach(this);
 		}
 
 		//go through all the cells again
 		for(Cell c : cells){
+			//if the cell is set, make sure it hasn't occurred before
 			if(c.isSet()){
-				//make sure this value hasnt been used before
 //				if(usedValues.contains(c.toString()))
 //					throw new Exception("Invalid: Unsolvable");
 
-				//add it to the list and remove from all other cells
-				usedValues.add(c.toString());
+				//add it to the list of used values and remove possibilities from other cells
+				getUsedValues().add(c.toString());
 				for(Cell c2 : cells){
-					if(c2.isSet()) continue;
 					c2.removePossibleValue(c.toString());
 				}
 			}
 		}
 	}
-
-	/**
-	 * getter for used values
-	 * @return
-	 */
-	public int getUsedValues(){
-		return this.usedValues.size();
-	}
-
-	/**
-	 * getter for cells
-	 * @return the cells
-	 */
-	public Cell[] getCells(){
-		return this.cells;
-	}
-
-	/**
-	 * Updates all the cells in this row when a cells value is set
-	 * @param c the cell
-	 * @throws Exception
-	 */
-	@Override
-	public void Update(Cell c) throws Exception {
-
-		//check if value has been used already
-		if(usedValues.contains(c.toString())){
-			throw new Exception("Invalid Move");
-		}
-		//add it to the used list
-		usedValues.add(c.toString());
-
-		//remove it from all other cells
-		for(Cell otherCells : cells){
-			otherCells.removePossibleValue(c.toString());
-		}
-	}
-
 
 	/**
 	 * to String

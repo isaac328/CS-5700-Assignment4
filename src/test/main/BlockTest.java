@@ -118,7 +118,7 @@ public void testGet1DCells() throws Exception {
 	cells[2] = new Cell[]{c7, c8, c9};
 	Block block = new Block(cells);
 
-	Cell[] returnedCells = block.get1DCells();
+	Cell[] returnedCells = block.getCells();
 	assertSame(c1, returnedCells[0]);
 	assertSame(c2, returnedCells[1]);
 	assertSame(c3, returnedCells[2]);

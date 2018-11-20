@@ -55,7 +55,7 @@ public abstract class HiddenNumbers extends Technique {
 				//frequency list to keep track of how many times a possibility has occurred
 				HashMap<String, Integer> freq = new HashMap<>(2*game.getSize());
 
-				Cell[] block = game.getBlock(blockX, blockY).get1DCells();
+				Cell[] block = game.getBlock(blockX, blockY).getCells();
 
 				setCells(block, freq);
 

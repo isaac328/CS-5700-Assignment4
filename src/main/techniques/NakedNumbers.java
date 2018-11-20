@@ -41,7 +41,7 @@ public abstract class NakedNumbers extends Technique {
 
 		for(int blockX = 0; blockX < game.getBlockSize(); blockX++){
 			for(int blockY = 0; blockY < game.getBlockSize(); blockY++){
-				Cell[] currentBlock = game.getBlock(blockX, blockY).get1DCells();
+				Cell[] currentBlock = game.getBlock(blockX, blockY).getCells();
 
 				HashMap<String, Integer> freq = setup(currentBlock);
 

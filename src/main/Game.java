@@ -166,7 +166,7 @@ public class Game implements Cloneable, Observer{
 	public int getRemainingValues(){
 		int total = 0;
 		for(Row r : rows){
-			total += (size - r.getUsedValues());
+			total += (size - r.getNumSetValues());
 		}
 		return total;
 	}

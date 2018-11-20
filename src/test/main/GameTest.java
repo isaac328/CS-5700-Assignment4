@@ -150,28 +150,28 @@ public void testGetBlock() throws Exception {
 	Game game = new Game(in);
 
 	Block block = game.getBlock(0, 0);
-	assertEquals("4", block.get1DCells()[0].toString());
-	assertEquals("1", block.get1DCells()[1].toString());
-	assertEquals("2", block.get1DCells()[2].toString());
-	assertEquals("3", block.get1DCells()[3].toString());
+	assertEquals("4", block.getCells()[0].toString());
+	assertEquals("1", block.getCells()[1].toString());
+	assertEquals("2", block.getCells()[2].toString());
+	assertEquals("3", block.getCells()[3].toString());
 
 	block = game.getBlock(1,0);
-	assertEquals("3", block.get1DCells()[0].toString());
-	assertEquals("4", block.get1DCells()[1].toString());
-	assertEquals("1", block.get1DCells()[2].toString());
-	assertEquals("2", block.get1DCells()[3].toString());
+	assertEquals("3", block.getCells()[0].toString());
+	assertEquals("4", block.getCells()[1].toString());
+	assertEquals("1", block.getCells()[2].toString());
+	assertEquals("2", block.getCells()[3].toString());
 
 	block = game.getBlock(0,1);
-	assertEquals("3", block.get1DCells()[0].toString());
-	assertEquals("2", block.get1DCells()[1].toString());
-	assertEquals("1", block.get1DCells()[2].toString());
-	assertEquals("4", block.get1DCells()[3].toString());
+	assertEquals("3", block.getCells()[0].toString());
+	assertEquals("2", block.getCells()[1].toString());
+	assertEquals("1", block.getCells()[2].toString());
+	assertEquals("4", block.getCells()[3].toString());
 
 	block = game.getBlock(1,1);
-	assertEquals("2", block.get1DCells()[0].toString());
-	assertEquals("1", block.get1DCells()[1].toString());
-	assertEquals("4", block.get1DCells()[2].toString());
-	assertEquals("3", block.get1DCells()[3].toString());}
+	assertEquals("2", block.getCells()[0].toString());
+	assertEquals("1", block.getCells()[1].toString());
+	assertEquals("4", block.getCells()[2].toString());
+	assertEquals("3", block.getCells()[3].toString());}
 
 /** 
 * 
