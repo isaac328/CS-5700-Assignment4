@@ -7,9 +7,11 @@ a variety of common solving techniques.
 This program can only solve square puzzles of normal sizes. This includes 4x4, 9x9, 16x16, 25x25, 36x36, etc.
 Puzzles are defined in the following way: 
 
-Line 1: the number of lines in the puzzle \n
-Line 2: The characters used in the puzzle \n
-Line 3+: The puzzle \n
+Line 1: the number of lines in the puzzle
+
+Line 2: The characters used in the puzzle
+
+Line 3+: The puzzle
 
 Examples of how puzzles should be formatted are included in this repo.
 
