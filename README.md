@@ -1,3 +1,6 @@
+NOTE: There are a few sample puzzles included in this repo. Extract the puzzles to the same directory as the executable
+and run the program. Type in the name of the puzzle with the file extension when prompted. For example, to solve puzzle1, type:
+
 ## Sodoku Solver
 This program solves sodoku puzzles. It is run from the command line, and reads in puzzles given 
 by the user. It is able to solve most puzzles in less than a second, regardless of size. It utilizes 
@@ -18,7 +21,7 @@ Examples of how puzzles should be formatted are included in this repo.
 ## Directions
 Run the program from the command line. Puzzles can be input in one of two ways. If the user only inputs the path of the puzzle,
 the ouput will be shown in the console. If the user inputs the path of the puzzle, followed by an output path, the solution 
-will be written to the output file. 
+will be written to the output file. PUZZLES MUST BE IN THE SAME DIRECTORY AS THE EXECUTABLE!
 
 ## Requirements
 This project used the StopWatch class from Apache Commons 3.8.1. I included the jar 
